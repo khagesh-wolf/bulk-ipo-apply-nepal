@@ -511,13 +511,13 @@ const SHA256_K: number[] = [
 function sha256JS(data: Uint8Array): string {
   // Pre-processing: add padding
   const bitLen = data.length * 8;
-  // Message must be padded to 512-bit (64-byte) blocks
-  const padLen = 64 - ((data.length + 9) % 64);
-  const totalLen = data.length + 1 + (padLen === 64 ? 0 : padLen) + 8;
+  // Message needs: 1 byte (0x80) + padding zeros + 8 bytes (length)
+  // Total must be a multiple of 64 bytes (512 bits)
+  const totalLen = Math.ceil((data.length + 9) / 64) * 64;
   const padded = new Uint8Array(totalLen);
   padded.set(data);
   padded[data.length] = 0x80;
-  // Length in bits as big-endian 64-bit
+  // Length in bits as big-endian 64-bit (only lower 32 bits used for < 512 MB)
   const view = new DataView(padded.buffer);
   view.setUint32(totalLen - 4, bitLen >>> 0, false);
 
