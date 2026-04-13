@@ -24,3 +24,18 @@ export {
   selectTopNLosers,
   selectTopNTurnover,
 } from './marketStore';
+
+export {
+  useNewsStore,
+  selectFilteredArticles,
+  selectArticlesByCategory,
+  selectAvailableCategories,
+} from './newsStore';
+
+export {
+  useWatchlistStore,
+  selectActiveAlerts,
+  selectTriggeredAlerts,
+  selectAlertsBySymbol,
+  selectWatchlistSymbols,
+} from './watchlistStore';
