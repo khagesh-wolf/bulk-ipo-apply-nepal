@@ -46,10 +46,7 @@ async function sha256Internal(input: string): Promise<string> {
 
   // Prefer Web Crypto API when available (fast native path on all modern engines)
   if (typeof globalThis !== 'undefined' && globalThis.crypto?.subtle) {
-    const hashBuffer = await globalThis.crypto.subtle.digest(
-      'SHA-256',
-      data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer,
-    );
+    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data as unknown as BufferSource);
     return bytesToHex(new Uint8Array(hashBuffer));
   }
 
@@ -517,7 +514,7 @@ function sha256JS(data: Uint8Array): string {
   const padded = new Uint8Array(totalLen);
   padded.set(data);
   padded[data.length] = 0x80;
-  // Length in bits as big-endian 64-bit (only lower 32 bits used for < 512 MB)
+  // Length in bits as big-endian 64-bit (upper 32 bits always 0 for typical inputs)
   const view = new DataView(padded.buffer);
   view.setUint32(totalLen - 4, bitLen >>> 0, false);
 
