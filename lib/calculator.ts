@@ -23,7 +23,7 @@
  * Note: CGT is only applied on profit. No rebate on loss.
  */
 
-import type { CalculatorResult } from '@/types';
+import type { CalculatorResult, IPOReturnResult, DividendIncomeResult } from '@/types';
 
 // ---------------------------------------------------------------------------
 // Commission rate schedule
@@ -136,4 +136,139 @@ export function breakEvenPrice(
   }
 
   return Number(((lo + hi) / 2).toFixed(2));
+}
+
+// ---------------------------------------------------------------------------
+// IPO Return Calculator
+// ---------------------------------------------------------------------------
+
+/**
+ * Calculate ROI on an IPO allocation.
+ */
+export function calculateIPOReturn(
+  ipoPrice: number,
+  allottedQuantity: number,
+  currentPrice: number,
+): IPOReturnResult {
+  const investedAmount = ipoPrice * allottedQuantity;
+  const currentValue = currentPrice * allottedQuantity;
+  const profitLoss = currentValue - investedAmount;
+  const roiPercent =
+    investedAmount > 0 ? (profitLoss / investedAmount) * 100 : 0;
+
+  return {
+    ipoPrice,
+    allottedQuantity,
+    currentPrice,
+    investedAmount: Number(investedAmount.toFixed(2)),
+    currentValue: Number(currentValue.toFixed(2)),
+    profitLoss: Number(profitLoss.toFixed(2)),
+    roiPercent: Number(roiPercent.toFixed(2)),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Dividend Income Calculator
+// ---------------------------------------------------------------------------
+
+const DIVIDEND_TDS_RATE = 0.05; // 5% TDS on cash dividends
+const STANDARD_FACE_VALUE = 100; // NPR 100 per share
+
+/**
+ * Calculate net dividend income after TDS.
+ */
+export function calculateDividendIncome(
+  symbol: string,
+  quantity: number,
+  dividendRate: number,
+  faceValue: number = STANDARD_FACE_VALUE,
+): DividendIncomeResult {
+  const grossDividend = (dividendRate / 100) * faceValue * quantity;
+  const taxAmount = grossDividend * DIVIDEND_TDS_RATE;
+  const netDividend = grossDividend - taxAmount;
+
+  return {
+    symbol,
+    quantity,
+    faceValue,
+    dividendRate,
+    grossDividend: Number(grossDividend.toFixed(2)),
+    taxAmount: Number(taxAmount.toFixed(2)),
+    netDividend: Number(netDividend.toFixed(2)),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Capital Gains Tax Calculator (Standalone)
+// ---------------------------------------------------------------------------
+
+export interface CapitalGainsTaxResult {
+  buyPrice: number;
+  sellPrice: number;
+  quantity: number;
+  holdingPeriod: 'short' | 'long';
+  grossGain: number;
+  taxRate: number;
+  taxAmount: number;
+  netGain: number;
+}
+
+/**
+ * Calculate capital gains tax independently.
+ *
+ * @param holdingDays - Number of days held (< 365 = short term)
+ */
+export function calculateCapitalGainsTax(
+  buyPrice: number,
+  sellPrice: number,
+  quantity: number,
+  holdingDays: number,
+): CapitalGainsTaxResult {
+  const isShortTerm = holdingDays < 365;
+  const taxRate = isShortTerm ? 0.075 : 0.05;
+  const grossGain = (sellPrice - buyPrice) * quantity;
+  const taxAmount = grossGain > 0 ? grossGain * taxRate : 0;
+  const netGain = grossGain - taxAmount;
+
+  return {
+    buyPrice,
+    sellPrice,
+    quantity,
+    holdingPeriod: isShortTerm ? 'short' : 'long',
+    grossGain: Number(grossGain.toFixed(2)),
+    taxRate,
+    taxAmount: Number(taxAmount.toFixed(2)),
+    netGain: Number(netGain.toFixed(2)),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Bonus Share Calculator
+// ---------------------------------------------------------------------------
+
+/**
+ * Calculate bonus shares received and the adjusted WACC.
+ * e.g., 20% bonus on 100 shares at WACC 500 = 20 additional shares,
+ * adjusted WACC = (100 * 500) / 120 ≈ 416.67.
+ *
+ * @param currentHolding - Number of shares held
+ * @param bonusRate - Bonus percentage (e.g. 20 for 20%)
+ * @param currentWACC - Current weighted average cost per share
+ */
+export function calculateBonusShares(
+  currentHolding: number,
+  bonusRate: number,
+  currentWACC = 0,
+): { bonusShares: number; totalShares: number; adjustedWACC: number } {
+  const bonusShares = Math.floor((bonusRate / 100) * currentHolding);
+  const totalShares = currentHolding + bonusShares;
+  const adjustedWACC =
+    totalShares > 0 && currentWACC > 0
+      ? Number(((currentHolding * currentWACC) / totalShares).toFixed(2))
+      : 0;
+  return {
+    bonusShares,
+    totalShares,
+    adjustedWACC,
+  };
 }

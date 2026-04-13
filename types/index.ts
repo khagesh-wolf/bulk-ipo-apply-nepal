@@ -200,3 +200,233 @@ export interface BulkApplyResult {
   applicationId?: string;
   errorMessage?: string;
 }
+
+// ============================================================================
+// NEWS & ANNOUNCEMENTS (Phase 4)
+// ============================================================================
+
+export type NewsCategory =
+  | 'IPO Announcements'
+  | 'Company News'
+  | 'Market Updates'
+  | 'Regulatory News'
+  | 'Dividend'
+  | 'General';
+
+export type NewsSource = 'ShareSansar' | 'Merolagani' | 'SEBON';
+
+export interface NewsArticle {
+  id: string;
+  title: string;
+  summary: string;
+  url: string;
+  source: NewsSource;
+  category: NewsCategory;
+  publishedAt: string;      // ISO 8601
+  imageUrl?: string;
+}
+
+// ============================================================================
+// FLOORSHEET (Phase 4)
+// ============================================================================
+
+export interface FloorsheetEntry {
+  id: number;
+  symbol: string;
+  buyerBrokerId: number;
+  sellerBrokerId: number;
+  quantity: number;
+  rate: number;
+  amount: number;
+  tradeTime: string;        // ISO 8601
+}
+
+// ============================================================================
+// MARKET SUMMARY (Phase 4)
+// ============================================================================
+
+export interface MarketSummary {
+  totalTradedShares: number;
+  totalTradedValue: number;  // NPR
+  totalTransactions: number;
+  totalScripsTraded: number;
+  totalMarketCap: number;    // NPR
+  isOpen: boolean;
+  asOf: string;              // ISO 8601
+}
+
+// ============================================================================
+// WATCHLIST & ALERTS (Phase 5)
+// ============================================================================
+
+export interface WatchlistItem {
+  symbol: string;
+  companyName: string;
+  sector: string;
+  addedAt: string;           // ISO 8601
+}
+
+export type AlertType = 'PRICE_ABOVE' | 'PRICE_BELOW' | 'PORTFOLIO_PL';
+
+export type AlertStatus = 'ACTIVE' | 'TRIGGERED' | 'DISMISSED';
+
+export interface PriceAlert {
+  id: string;
+  symbol: string;
+  alertType: AlertType;
+  targetPrice: number;
+  currentPrice?: number;
+  status: AlertStatus;
+  createdAt: string;         // ISO 8601
+  triggeredAt?: string;      // ISO 8601
+}
+
+// ============================================================================
+// PORTFOLIO ANALYTICS (Phase 5)
+// ============================================================================
+
+export interface AggregatedPortfolio {
+  totalInvestment: number;
+  totalCurrentValue: number;
+  totalProfitLoss: number;
+  totalProfitLossPercent: number;
+  holdingsBySector: Record<string, number>;  // sector → value
+  holdingsBySymbol: AggregatedHolding[];
+  accountCount: number;
+  lastUpdated: string;       // ISO 8601
+}
+
+export interface AggregatedHolding {
+  symbol: string;
+  companyName: string;
+  totalQuantity: number;
+  weightedAvgCost: number;   // WACC across all accounts
+  lastTradedPrice: number;
+  currentValue: number;
+  investedAmount: number;
+  profitLoss: number;
+  profitLossPercent: number;
+  sector: string;
+  accounts: string[];        // accountIds holding this stock
+}
+
+// ============================================================================
+// DIVIDEND & BONUS TRACKER (Phase 5)
+// ============================================================================
+
+export type DividendType = 'Cash' | 'Bonus' | 'Right';
+
+export interface DividendRecord {
+  id: string;
+  symbol: string;
+  companyName: string;
+  type: DividendType;
+  rate: number;              // percentage
+  amount?: number;           // per share NPR (for cash dividend)
+  bookCloseDate: string;     // ISO 8601
+  paymentDate?: string;      // ISO 8601
+  fiscalYear: string;        // e.g. "2080/81"
+}
+
+// ============================================================================
+// BROKER DIRECTORY (Phase 5)
+// ============================================================================
+
+export interface BrokerInfo {
+  id: number;
+  name: string;
+  code: string;
+  address: string;
+  phone: string;
+  email: string;
+  tmsUrl: string;
+  commissionRate: number;    // percentage e.g. 0.40
+}
+
+// ============================================================================
+// IPO RETURN CALCULATOR (Phase 5)
+// ============================================================================
+
+export interface IPOReturnResult {
+  ipoPrice: number;
+  allottedQuantity: number;
+  currentPrice: number;
+  investedAmount: number;
+  currentValue: number;
+  profitLoss: number;
+  roiPercent: number;
+}
+
+// ============================================================================
+// DIVIDEND INCOME CALCULATOR (Phase 5)
+// ============================================================================
+
+export interface DividendIncomeResult {
+  symbol: string;
+  quantity: number;
+  faceValue: number;         // NPR 100 standard
+  dividendRate: number;      // percentage
+  grossDividend: number;
+  taxAmount: number;          // 5% TDS
+  netDividend: number;
+}
+
+// ============================================================================
+// STOCK SCREENER (Phase 5)
+// ============================================================================
+
+export interface ScreenerFilter {
+  sector?: string;
+  minPE?: number;
+  maxPE?: number;
+  minEPS?: number;
+  maxEPS?: number;
+  minVolume?: number;
+  minMarketCap?: number;
+  sortBy?: 'changePercent' | 'volume' | 'turnover' | 'pe' | 'eps';
+  sortOrder?: 'asc' | 'desc';
+}
+
+// ============================================================================
+// TECHNICAL ANALYSIS (Phase 5)
+// ============================================================================
+
+export interface OHLCV {
+  date: string;              // ISO 8601
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export interface TechnicalIndicators {
+  sma20?: number;
+  sma50?: number;
+  sma200?: number;
+  ema12?: number;
+  ema26?: number;
+  rsi14?: number;
+  macdLine?: number;
+  macdSignal?: number;
+  macdHistogram?: number;
+  bollingerUpper?: number;
+  bollingerMiddle?: number;
+  bollingerLower?: number;
+}
+
+// ============================================================================
+// PERFORMANCE REPORT (Phase 5)
+// ============================================================================
+
+export interface PerformanceReport {
+  period: string;              // e.g. "2024-01" or "2024-W01"
+  totalReturn: number;
+  totalReturnPercent: number;
+  benchmarkReturn: number;     // NEPSE index return
+  benchmarkReturnPercent: number;
+  alpha: number;               // excess return vs benchmark
+  standardDeviation: number;
+  beta: number;
+  sharpeRatio: number;
+}

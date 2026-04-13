@@ -28,8 +28,35 @@ export {
 } from './nepseApi';
 
 // Calculator utilities
-export { calculateShareProfitLoss, breakEvenPrice } from './calculator';
-export type { CGTType } from './calculator';
+export { calculateShareProfitLoss, breakEvenPrice, calculateIPOReturn, calculateDividendIncome, calculateCapitalGainsTax, calculateBonusShares } from './calculator';
+export type { CGTType, CapitalGainsTaxResult } from './calculator';
+
+// ---------------------------------------------------------------------------
+// Phase 4 & 5 modules (new)
+// ---------------------------------------------------------------------------
+
+// News aggregation
+export { fetchNews, filterNewsByCategory, categorizeNews, MOCK_NEWS } from './newsApi';
+
+// Floorsheet & market summary
+export { getFloorsheet, getMarketSummary, MOCK_FLOORSHEET, MOCK_MARKET_SUMMARY } from './floorsheetApi';
+
+// Portfolio analytics
+export { aggregatePortfolios, calculateWACC, calculateSectorAllocation, calculateDailyReturn, calculateStdDeviation, calculateBeta, calculateSharpeRatio } from './portfolioService';
+
+// Stock screener
+export { screenStocks, groupBySector, compareStocks, NEPSE_SECTORS } from './stockScreener';
+export type { StockComparison, NEPSESector } from './stockScreener';
+
+// Technical analysis
+export { calculateSMA, calculateSMASeries, calculateEMA, calculateEMASeries, calculateRSI, calculateMACD, calculateBollingerBands, calculateAllIndicators } from './technicalAnalysis';
+export type { MACDResult, BollingerBands } from './technicalAnalysis';
+
+// Broker directory
+export { BROKERS, searchBrokers, getBrokerById, getBrokerByCode, getTMSUrl, getBrokerLocations } from './brokerDirectory';
+
+// Alert service
+export { evaluateAlert, checkAlerts, formatAlertMessage, formatAlertType, validateAlertParams, getAlertStats } from './alertService';
 
 // ---------------------------------------------------------------------------
 // Phase 2 & 3 modules (new)
