@@ -247,17 +247,28 @@ export function calculateCapitalGainsTax(
 // ---------------------------------------------------------------------------
 
 /**
- * Calculate bonus shares received.
- * e.g., 20% bonus on 100 shares = 20 additional shares.
+ * Calculate bonus shares received and the adjusted WACC.
+ * e.g., 20% bonus on 100 shares at WACC 500 = 20 additional shares,
+ * adjusted WACC = (100 * 500) / 120 ≈ 416.67.
+ *
+ * @param currentHolding - Number of shares held
+ * @param bonusRate - Bonus percentage (e.g. 20 for 20%)
+ * @param currentWACC - Current weighted average cost per share
  */
 export function calculateBonusShares(
   currentHolding: number,
   bonusRate: number,
+  currentWACC = 0,
 ): { bonusShares: number; totalShares: number; adjustedWACC: number } {
   const bonusShares = Math.floor((bonusRate / 100) * currentHolding);
+  const totalShares = currentHolding + bonusShares;
+  const adjustedWACC =
+    totalShares > 0 && currentWACC > 0
+      ? Number(((currentHolding * currentWACC) / totalShares).toFixed(2))
+      : 0;
   return {
     bonusShares,
-    totalShares: currentHolding + bonusShares,
-    adjustedWACC: 0, // WACC adjustment depends on original cost (set by caller)
+    totalShares,
+    adjustedWACC,
   };
 }

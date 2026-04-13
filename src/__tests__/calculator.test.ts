@@ -205,5 +205,15 @@ describe('Calculator', () => {
       expect(result.bonusShares).toBe(0);
       expect(result.totalShares).toBe(0);
     });
+
+    it('should calculate adjusted WACC when currentWACC is provided', () => {
+      const result = calculateBonusShares(100, 20, 500);
+
+      // 100 shares at WACC 500, 20 bonus → 120 total
+      // adjusted WACC = (100 * 500) / 120 ≈ 416.67
+      expect(result.bonusShares).toBe(20);
+      expect(result.totalShares).toBe(120);
+      expect(result.adjustedWACC).toBeCloseTo(416.67, 1);
+    });
   });
 });
