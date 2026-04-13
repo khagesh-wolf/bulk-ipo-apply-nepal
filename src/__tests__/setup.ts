@@ -7,31 +7,6 @@ jest.mock('react-native', () => ({
   Platform: { OS: 'ios', select: jest.fn() },
 }));
 
-// Mock expo-crypto
-jest.mock('expo-crypto', () => ({
-  randomUUID: () => 'test-uuid-' + Math.random().toString(36).slice(2, 10),
-  getRandomBytesAsync: async (length: number) => {
-    const bytes = new Uint8Array(length);
-    for (let i = 0; i < length; i++) {
-      bytes[i] = Math.floor(Math.random() * 256);
-    }
-    return bytes;
-  },
-  digestStringAsync: async (_algo: string, input: string) => {
-    // Simple deterministic hash for testing
-    let hash = 0;
-    for (let i = 0; i < input.length; i++) {
-      const char = input.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash |= 0;
-    }
-    return Math.abs(hash).toString(16).padStart(64, '0');
-  },
-  CryptoDigestAlgorithm: {
-    SHA256: 'SHA-256',
-  },
-}));
-
 // Mock expo-secure-store
 jest.mock('expo-secure-store', () => {
   const store = new Map<string, string>();

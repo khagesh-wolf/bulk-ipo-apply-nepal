@@ -9,8 +9,8 @@
  */
 
 import { Platform } from 'react-native';
-import * as Crypto from 'expo-crypto';
 import type { MeroShareAccount } from '@/types';
+import { generateUUID } from '@/src/utils/uuid';
 
 const ACCOUNTS_KEY = 'meroshare_accounts_v1';
 
@@ -124,8 +124,9 @@ export async function deleteAccount(id: string): Promise<void> {
 }
 
 /**
- * Generate a cryptographically-random UUID v4 using expo-crypto.
+ * Generate a UUID v4.
+ * Delegates to the shared UUID utility.
  */
 export async function generateId(): Promise<string> {
-  return Crypto.randomUUID();
+  return generateUUID();
 }
