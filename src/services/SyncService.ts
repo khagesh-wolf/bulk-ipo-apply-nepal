@@ -14,7 +14,7 @@ import type { PortfolioHolding, PortfolioRow } from '@/src/models/Portfolio';
 import { portfolioRowToHolding } from '@/src/models/Portfolio';
 import { purgeExpiredTokens } from '@/src/api/auth';
 import { logger } from '@/src/utils/logger';
-import * as Crypto from 'expo-crypto';
+import { generateUUID } from '@/src/utils/uuid';
 
 const TAG = 'SyncService';
 
@@ -140,7 +140,7 @@ export async function cachePortfolioHoldings(
 
     // Insert new holdings
     for (const holding of holdings) {
-      const id = Crypto.randomUUID();
+      const id = generateUUID();
       await db.runAsync(
         `INSERT INTO portfolio (
           id, account_id, symbol, company_name, current_balance,

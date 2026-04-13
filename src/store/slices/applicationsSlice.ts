@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand';
-import * as Crypto from 'expo-crypto';
+import { generateUUID } from '@/src/utils/uuid';
 import type { IPOApplication, BulkApplyResult } from '@/src/models/IPOApplication';
 import { bulkApply } from '@/src/services/BulkIPOService';
 import type { BulkApplyConfig } from '@/src/services/BulkIPOService';
@@ -121,7 +121,7 @@ export const useApplicationsSlice = create<ApplicationsState>((set, get) => ({
       const newApps: IPOApplication[] = await Promise.all(
         report.results.map(async (result) => {
           const app: IPOApplication = {
-            id: Crypto.randomUUID(),
+            id: generateUUID(),
             accountId: result.accountId,
             accountNickname: result.accountNickname,
             issueId: String(companyShareId),

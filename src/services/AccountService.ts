@@ -5,7 +5,7 @@
  * Bridges the vault (encryption), database, and API layers.
  */
 
-import * as Crypto from 'expo-crypto';
+import { generateUUID } from '@/src/utils/uuid';
 import { getDatabase } from '@/src/db/database';
 import {
   encryptAccountCredentials,
@@ -110,7 +110,7 @@ export async function addAccount(
     pin: account.pin,
   });
 
-  const id = Crypto.randomUUID();
+  const id = generateUUID();
   const createdAt = new Date().toISOString();
 
   // Encrypt sensitive fields
