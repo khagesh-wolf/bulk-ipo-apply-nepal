@@ -119,7 +119,7 @@ export const MOCK_NEWS: NewsArticle[] = [
 // ---------------------------------------------------------------------------
 
 const CATEGORY_KEYWORDS: Record<NewsCategory, string[]> = {
-  'IPO Announcements': ['ipo', 'initial public offering', 'fpo', 'right share issue', 'debenture issue'],
+  'IPO Announcements': ['ipo', 'initial public offering', 'fpo', 'debenture issue'],
   'Dividend': ['dividend', 'bonus share', 'right share', 'book close'],
   'Regulatory News': ['sebon', 'regulation', 'guideline', 'policy', 'suspend', 'compliance'],
   'Company News': ['quarterly', 'annual report', 'agm', 'profit', 'loss', 'merger', 'capacity'],
@@ -218,7 +218,7 @@ function parseRSSToArticles(xml: string, source: NewsSource): NewsArticle[] {
 
     if (title) {
       const summary = description
-        ? description.replace(/<[^>]+>/g, '').slice(0, 300)
+        ? stripHtmlTags(description).slice(0, 300)
         : '';
 
       articles.push({
@@ -236,6 +236,20 @@ function parseRSSToArticles(xml: string, source: NewsSource): NewsArticle[] {
   }
 
   return articles;
+}
+
+/**
+ * Strip HTML tags from a string thoroughly. Applies the regex replacement
+ * repeatedly to handle nested/incomplete tags like `<scr<script>ipt>`.
+ */
+function stripHtmlTags(html: string): string {
+  let result = html;
+  let previous: string;
+  do {
+    previous = result;
+    result = result.replace(/<[^>]*>/g, '');
+  } while (result !== previous);
+  return result.trim();
 }
 
 function extractTag(xml: string, tag: string): string {

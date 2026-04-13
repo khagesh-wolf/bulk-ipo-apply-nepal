@@ -253,9 +253,7 @@ export function calculateCapitalGainsTax(
 export function calculateBonusShares(
   currentHolding: number,
   bonusRate: number,
-): { bonusShares: number; totalShares: number; adjustedWACC: number } & {
-  bonusShares: number;
-} {
+): { bonusShares: number; totalShares: number; adjustedWACC: number } {
   const bonusShares = Math.floor((bonusRate / 100) * currentHolding);
   return {
     bonusShares,
