@@ -79,7 +79,7 @@ export async function getMasterKey(): Promise<string> {
     return key;
   } catch (err) {
     logger.error(TAG, 'Failed to get/create master key', err);
-    throw new Error('Failed to initialise encryption keychain.');
+    throw new Error('Failed to initialize encryption keychain.');
   }
 }
 
