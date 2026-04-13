@@ -23,9 +23,10 @@ import type {
 // Constants
 // ---------------------------------------------------------------------------
 
-const MEROSHARE_BASE_URL = 'https://meroshare.cdsc.com.np/api/v2';
-const CDSC_RESULT_URL = 'https://iporesult.cdsc.com.np/result/companyShares/';
+const MEROSHARE_BASE_URL = 'https://webbackend.cdsc.com.np/api/meroShare';
+const CDSC_RESULT_URL = 'https://iporesult.cdsc.com.np/result/result/check';
 const DEFAULT_TIMEOUT_MS = 15_000;
+const MEROSHARE_CLIENT_ID = 179;
 
 // ---------------------------------------------------------------------------
 // Raw API shapes
@@ -140,8 +141,8 @@ export class MeroShareApiClient {
     username: string,
     password: string,
   ): Promise<MeroShareLoginResponse> {
-    const response = await this.http.post<LoginResponseBody>('/auth/login', {
-      clientId: dpId,
+    const response = await this.http.post<LoginResponseBody>('/auth/', {
+      clientId: MEROSHARE_CLIENT_ID,
       username,
       password,
     });
@@ -175,14 +176,28 @@ export class MeroShareApiClient {
    * Fetch all applicable (currently open/upcoming) IPO/Rights issues.
    */
   async getActiveIssues(token: string): Promise<IPOIssue[]> {
-    const response = await this.http.get<MeroShareApplicableIssueRaw[]>(
-      '/issue/applicableissue/',
+    const response = await this.http.post<MeroShareApplicableIssueRaw[] | { object: MeroShareApplicableIssueRaw[] }>(
+      '/companyShare/applicableIssue/',
       {
-        headers: { Authorization: `Bearer ${token}` },
+        filterFieldParams: [
+          { key: 'companyIssue.companyISIN.script', alias: 'Scrip' },
+          { key: 'companyIssue.companyISIN.company.name', alias: 'Company Name' },
+        ],
+        page: 1,
+        size: 200,
+        searchRoleViewConstants: 'VIEW_APPLICABLE_SHARE',
+        filterDateParams: [
+          { key: 'minIssueOpenDate', condition: '', alias: '', value: '' },
+          { key: 'maxIssueCloseDate', condition: '', alias: '', value: '' },
+        ],
+      },
+      {
+        headers: { Authorization: token },
       },
     );
 
-    const data = Array.isArray(response.data) ? response.data : [];
+    const rawData = response.data;
+    const data = Array.isArray(rawData) ? rawData : ((rawData as { object?: MeroShareApplicableIssueRaw[] })?.object ?? []);
     return data.map(mapRawIssue);
   }
 
@@ -194,8 +209,8 @@ export class MeroShareApiClient {
     companyShareId: string,
   ): Promise<{ minUnit: number; maxUnit: number }> {
     const response = await this.http.get<{ minUnit: number; maxUnit: number }>(
-      `/issue/applicableissue/${companyShareId}/applyunit`,
-      { headers: { Authorization: `Bearer ${token}` } },
+      `/companyShare/applicableIssue/${companyShareId}/applyunit`,
+      { headers: { Authorization: token } },
     );
     return {
       minUnit: response.data.minUnit ?? 10,
@@ -215,9 +230,9 @@ export class MeroShareApiClient {
     params: MeroShareApplyParams,
   ): Promise<{ applicantFormId: string; message: string }> {
     const response = await this.http.post<ApplyResponse>(
-      '/applicant/api/share/apply',
+      '/applicantForm/share/apply',
       params,
-      { headers: { Authorization: `Bearer ${token}` } },
+      { headers: { Authorization: token } },
     );
 
     return {
@@ -235,9 +250,9 @@ export class MeroShareApiClient {
     params: Partial<MeroShareApplyParams>,
   ): Promise<void> {
     await this.http.post(
-      `/applicant/api/share/editapplication/${applicantFormId}`,
+      `/applicantForm/share/editapplication/${applicantFormId}`,
       params,
-      { headers: { Authorization: `Bearer ${token}` } },
+      { headers: { Authorization: token } },
     );
   }
 
@@ -249,8 +264,8 @@ export class MeroShareApiClient {
     applicantFormId: string,
   ): Promise<Record<string, unknown>> {
     const response = await this.http.get<Record<string, unknown>>(
-      `/applicant/api/share/${applicantFormId}/details`,
-      { headers: { Authorization: `Bearer ${token}` } },
+      `/applicantForm/report/${applicantFormId}`,
+      { headers: { Authorization: token } },
     );
     return response.data;
   }
@@ -267,7 +282,7 @@ export class MeroShareApiClient {
   ): Promise<Array<{ id: number; name: string; code: string }>> {
     const response = await this.http.get<
       Array<{ id: number; name: string; code: string }>
-    >('/bank/', { headers: { Authorization: `Bearer ${token}` } });
+    >('/bank/', { headers: { Authorization: token } });
     return Array.isArray(response.data) ? response.data : [];
   }
 
@@ -280,7 +295,7 @@ export class MeroShareApiClient {
   ): Promise<Array<{ id: number; name: string }>> {
     const response = await this.http.get<Array<{ id: number; name: string }>>(
       `/bank/branch/?bankId=${bankId}`,
-      { headers: { Authorization: `Bearer ${token}` } },
+      { headers: { Authorization: token } },
     );
     return Array.isArray(response.data) ? response.data : [];
   }
@@ -301,12 +316,13 @@ export class MeroShareApiClient {
     message: string;
   }> {
     try {
-      const response = await axios.get<{
+      const response = await axios.post<{
         success: boolean;
         description?: string;
         detail?: { allotedKitta?: number };
       }>(CDSC_RESULT_URL, {
-        params: { boid },
+        boid,
+      }, {
         timeout: DEFAULT_TIMEOUT_MS,
       });
 
