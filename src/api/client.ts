@@ -73,8 +73,10 @@ export function createApiClient(baseURL = MEROSHARE_BACKEND_URL): AxiosInstance 
   // ----- Request interceptor: inject auth token -----
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      if (currentToken && config.headers) {
-        config.headers.Authorization = currentToken;
+      if (config.headers) {
+        // After login, use the real JWT token; before login send literal "null"
+        // as required by the MeroShare API.
+        config.headers.Authorization = currentToken ?? 'null';
       }
       logger.debug(TAG, `→ ${config.method?.toUpperCase()} ${config.url}`);
       return config;
@@ -112,9 +114,16 @@ function normalizeError(error: AxiosError<{ message?: string; error?: string }>)
 
   // Token expired / unauthorized
   if (status === 401) {
-    logger.warn(TAG, 'Token expired or unauthorized');
-    if (onTokenExpired) onTokenExpired();
-    return new TokenExpiredError();
+    // Distinguish between a failed login (no token yet) and an expired token
+    if (currentToken) {
+      logger.warn(TAG, 'Token expired or unauthorized');
+      if (onTokenExpired) onTokenExpired();
+      return new TokenExpiredError();
+    }
+    // No token means this was a login attempt — surface the server message
+    return new AuthError(
+      serverMessage ?? 'Authentication failed (401). Check your credentials.',
+    );
   }
 
   // Forbidden
