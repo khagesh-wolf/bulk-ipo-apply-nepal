@@ -59,25 +59,43 @@ export async function login(
         timeout: DEFAULT_TIMEOUT_MS,
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
+          Authorization: 'null',
         },
       },
     );
 
-    // Extract token from Authorization header
-    const authHeader =
-      (response.headers['authorization'] as string | undefined) ??
-      (response.headers['Authorization'] as string | undefined) ??
-      '';
+    // MeroShare returns the JWT token in the response body.
+    // It may be a plain string or an object with a token field.
+    const raw = response.data;
+    let token = '';
+    if (typeof raw === 'string' && raw.length > 0) {
+      token = raw.trim();
+    } else if (raw && typeof raw === 'object') {
+      token = String(
+        (raw as Record<string, unknown>).token ??
+        (raw as Record<string, unknown>).accessToken ??
+        '',
+      ).trim();
+    }
 
-    const token = authHeader.trim();
+    // Fall back to Authorization header if body didn't contain a token
+    if (!token) {
+      const authHeader =
+        (response.headers['authorization'] as string | undefined) ??
+        (response.headers['Authorization'] as string | undefined) ??
+        '';
+      token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    }
 
     if (!token) {
       throw new AuthError('Login failed: no token received from MeroShare.');
     }
 
-    // Extract customer details from response body
-    const body = response.data as Record<string, unknown>;
+    // Extract customer details from response body (when body is an object)
+    const body =
+      typeof raw === 'object' && raw !== null
+        ? (raw as Record<string, unknown>)
+        : {};
     const customerId = String(body.demat ?? body.id ?? body.customerId ?? '');
     const name = String(body.name ?? body.accountName ?? '');
     const demat = String(body.demat ?? '');

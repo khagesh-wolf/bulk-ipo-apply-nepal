@@ -114,7 +114,7 @@ export class MeroShareApiClient {
       withCredentials: false,
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
+        Authorization: 'null',
       },
     });
 
@@ -134,7 +134,7 @@ export class MeroShareApiClient {
 
   /**
    * Login with DP credentials. Returns token and customerId.
-   * The token lives in the Authorization header of the response.
+   * MeroShare returns the JWT token in the response body (plain string).
    */
   async login(
     dpId: string,
@@ -147,16 +147,30 @@ export class MeroShareApiClient {
       password,
     });
 
-    // Token is typically in the Authorization header
-    const authHeader =
-      (response.headers['authorization'] as string | undefined) ??
-      (response.headers['Authorization'] as string | undefined) ??
-      '';
+    // MeroShare returns the JWT token directly in the response body.
+    const raw = response.data;
+    let token = '';
+    if (typeof raw === 'string' && raw.length > 0) {
+      token = raw.trim();
+    } else if (raw && typeof raw === 'object') {
+      const body = raw as Record<string, unknown>;
+      token = String(body.token ?? body.accessToken ?? '').trim();
+    }
 
-    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    // Fall back to Authorization header if body didn't contain a token
+    if (!token) {
+      const authHeader =
+        (response.headers['authorization'] as string | undefined) ??
+        (response.headers['Authorization'] as string | undefined) ??
+        '';
+      token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    }
 
-    // customerId may also come in the body
-    const body = response.data as Record<string, unknown>;
+    // customerId may come in the body
+    const body =
+      typeof raw === 'object' && raw !== null
+        ? (raw as Record<string, unknown>)
+        : {};
     const customerId = String(
       body.id ?? body.customerId ?? body.userId ?? '',
     );

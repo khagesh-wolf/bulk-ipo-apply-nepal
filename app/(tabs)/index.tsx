@@ -31,6 +31,9 @@ import {
 import { useShallow } from 'zustand/react/shallow';
 import { useMarketStore, useAccountStore, useIPOStore, selectTopNGainers, selectOpenIssues, selectUpcomingIssues } from '@/store';
 
+// useNativeDriver is not supported on web
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function formatNumber(n: number): string {
@@ -59,8 +62,8 @@ function LiveDot() {
   useEffect(() => {
     const pulse = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, { toValue: 0.2, duration: 800, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.2, duration: 800, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     );
     pulse.start();
@@ -237,8 +240,8 @@ function SkeletonBox({ width, height, borderRadius = 6 }: { width: number | stri
   useEffect(() => {
     const pulse = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, { toValue: 0.7, duration: 600, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.4, duration: 600, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.7, duration: 600, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(opacity, { toValue: 0.4, duration: 600, useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     );
     pulse.start();
