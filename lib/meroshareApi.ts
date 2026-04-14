@@ -166,7 +166,8 @@ export class MeroShareApiClient {
     if (typeof raw === 'string' && raw.length > 0) {
       const candidate = raw.trim();
       // Format validation only — checks for three dot-separated base64url segments
-      // (header.payload.signature). This is NOT cryptographic validation.
+      // (header.payload.signature). This validates structure only; it does NOT validate
+      // base64url character compliance or cryptographic integrity.
       if (/^[\w-]+\.[\w-]+\.[\w-]+$/.test(candidate)) {
         token = candidate;
       } else if (__DEV__) {

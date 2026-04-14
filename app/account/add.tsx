@@ -254,7 +254,8 @@ export default function AddAccountScreen() {
         lastUsed: null,
       });
       showSuccess('Account added successfully! 🎉');
-      // Navigate back reliably after showing success toast
+      // Navigate back after a short delay so users can read the success toast.
+      // 800ms is intentionally brief — the toast persists for 3s after navigation.
       setTimeout(() => {
         if (router.canGoBack()) {
           router.back();

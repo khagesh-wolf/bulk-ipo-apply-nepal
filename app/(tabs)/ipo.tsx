@@ -473,10 +473,11 @@ function ActiveIssueCard({ issue, onBulkApply, onSingleApply }: IssueCardProps) 
   const days = daysUntil(issue.closeDate);
   const minInvestment = issue.minUnit * issue.pricePerUnit;
   const { progressPercent } = useMemo(() => {
-    const total = Math.max(1, Math.ceil(
-      (new Date(issue.closeDate).getTime() - new Date(issue.openDate).getTime()) / (1000 * 60 * 60 * 24)
-    ));
-    const elapsed = total - daysUntil(issue.closeDate);
+    const closeDateMs = new Date(issue.closeDate).getTime();
+    const openDateMs = new Date(issue.openDate).getTime();
+    const total = Math.max(1, Math.ceil((closeDateMs - openDateMs) / (1000 * 60 * 60 * 24)));
+    const nowMs = Date.now();
+    const elapsed = Math.ceil((nowMs - openDateMs) / (1000 * 60 * 60 * 24));
     return {
       progressPercent: Math.min(100, Math.max(0, Math.round((elapsed / total) * 100))),
     };
