@@ -3,7 +3,7 @@
  * Active / Upcoming issues with bulk apply modal.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Platform, Modal, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import {
   YStack,
@@ -26,6 +26,7 @@ import {
   X,
   Zap,
 } from '@blinkdotnew/mobile-ui';
+import { useShallow } from 'zustand/react/shallow';
 import {
   useIPOStore,
   useAccountStore,
@@ -721,23 +722,42 @@ function ApplicationRow({ app }: { app: IPOApplication }) {
 export default function IPOScreen() {
   const topPad = Platform.OS === 'ios' ? 50 : 30;
 
-  const ipoStore = useIPOStore();
-  const accountStore = useAccountStore();
-  const openIssues = useIPOStore(selectOpenIssues);
-  const upcomingIssues = useIPOStore(selectUpcomingIssues);
+  // Subscribe to specific state slices instead of entire stores
+  const {
+    isLoadingIssues,
+    applications,
+    isApplying,
+    lastBulkResults,
+    error: ipoError,
+  } = useIPOStore(
+    useShallow((s) => ({
+      isLoadingIssues: s.isLoadingIssues,
+      applications: s.applications,
+      isApplying: s.isApplying,
+      lastBulkResults: s.lastBulkResults,
+      error: s.error,
+    })),
+  );
+  const accounts = useAccountStore((s) => s.accounts);
+  const openIssues = useIPOStore(useShallow(selectOpenIssues));
+  const upcomingIssues = useIPOStore(useShallow(selectUpcomingIssues));
 
   const [activeTab, setActiveTab] = useState<'active' | 'upcoming'>('active');
   const [selectedIssue, setSelectedIssue] = useState<IPOIssue | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Use ref to ensure accounts are loaded only once on mount.
+  const dataFetched = useRef(false);
   useEffect(() => {
-    accountStore.loadAccounts();
+    if (dataFetched.current) return;
+    dataFetched.current = true;
+    useAccountStore.getState().loadAccounts();
   }, []);
 
   async function handleRefresh() {
     setIsRefreshing(true);
-    await ipoStore.fetchActiveIssues();
+    await useIPOStore.getState().fetchActiveIssues();
     setIsRefreshing(false);
   }
 
@@ -836,7 +856,7 @@ export default function IPOScreen() {
           </XStack>
 
           {/* ── Loading state ── */}
-          {ipoStore.isLoadingIssues && (
+          {isLoadingIssues && (
             <YStack alignItems="center" paddingVertical="$6" gap="$3">
               <ActivityIndicator size="large" color="#FFD700" />
               <SizableText size="$3" color="#8B9AB1">Loading issues…</SizableText>
@@ -844,7 +864,7 @@ export default function IPOScreen() {
           )}
 
           {/* ── Active Issues ── */}
-          {activeTab === 'active' && !ipoStore.isLoadingIssues && (
+          {activeTab === 'active' && !isLoadingIssues && (
             <YStack paddingHorizontal="$4">
               {openIssues.length === 0 ? (
                 <YStack
@@ -901,7 +921,7 @@ export default function IPOScreen() {
           )}
 
           {/* ── Upcoming Issues ── */}
-          {activeTab === 'upcoming' && !ipoStore.isLoadingIssues && (
+          {activeTab === 'upcoming' && !isLoadingIssues && (
             <YStack paddingHorizontal="$4">
               {upcomingIssues.length === 0 ? (
                 <YStack
@@ -931,7 +951,7 @@ export default function IPOScreen() {
           )}
 
           {/* ── My Applications ── */}
-          {ipoStore.applications.length > 0 && (
+          {applications.length > 0 && (
             <YStack paddingHorizontal="$4" marginTop="$5">
               <XStack alignItems="center" justifyContent="space-between" marginBottom="$3">
                 <XStack alignItems="center" gap="$2">
@@ -947,7 +967,7 @@ export default function IPOScreen() {
                   borderWidth={1}
                   borderColor="#FFD700"
                   pressStyle={{ opacity: 0.7, backgroundColor: '#FFD70010' }}
-                  onPress={() => ipoStore.checkResults()}
+                  onPress={() => useIPOStore.getState().checkResults()}
                 >
                   <XStack alignItems="center" gap="$1">
                     <RefreshCw size={12} color="#FFD700" />
@@ -957,7 +977,7 @@ export default function IPOScreen() {
               </XStack>
 
               <YStack>
-                {ipoStore.applications.slice().reverse().map((app) => (
+                {applications.slice().reverse().map((app) => (
                   <ApplicationRow key={app.id} app={app} />
                 ))}
               </YStack>
@@ -965,7 +985,7 @@ export default function IPOScreen() {
           )}
 
           {/* ── Error state ── */}
-          {ipoStore.error && (
+          {ipoError && (
             <XStack
               marginHorizontal="$4"
               marginTop="$3"
@@ -978,11 +998,11 @@ export default function IPOScreen() {
               borderColor="#EF444440"
             >
               <AlertCircle size={16} color="#EF4444" />
-              <SizableText size="$2" color="#EF4444" flex={1}>{ipoStore.error}</SizableText>
+              <SizableText size="$2" color="#EF4444" flex={1}>{ipoError}</SizableText>
               <Button
                 size="$2"
                 chromeless
-                onPress={() => ipoStore.clearError()}
+                onPress={() => useIPOStore.getState().clearError()}
               >
                 <X size={14} color="#EF4444" />
               </Button>
@@ -996,11 +1016,11 @@ export default function IPOScreen() {
       <BulkApplyModal
         visible={modalVisible}
         issue={selectedIssue}
-        accounts={accountStore.accounts}
+        accounts={accounts}
         onClose={() => setModalVisible(false)}
-        onApply={ipoStore.applyBulk}
-        isApplying={ipoStore.isApplying}
-        lastResults={ipoStore.lastBulkResults}
+        onApply={useIPOStore.getState().applyBulk}
+        isApplying={isApplying}
+        lastResults={lastBulkResults}
       />
     </YStack>
   );

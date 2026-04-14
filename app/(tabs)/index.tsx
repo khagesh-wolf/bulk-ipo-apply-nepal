@@ -3,7 +3,7 @@
  * Shows NEPSE index, quick stats, active IPOs, market movers, accounts preview.
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { Platform, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -28,6 +28,7 @@ import {
   DollarSign,
   Zap,
 } from '@blinkdotnew/mobile-ui';
+import { useShallow } from 'zustand/react/shallow';
 import { useMarketStore, useAccountStore, useIPOStore, selectTopNGainers, selectOpenIssues, selectUpcomingIssues } from '@/store';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -263,22 +264,35 @@ export default function DashboardScreen() {
   const router = useRouter();
   const topPad = Platform.OS === 'ios' ? 50 : 30;
 
-  // Stores
-  const marketStore = useMarketStore();
-  const accountStore = useAccountStore();
-  const ipoStore = useIPOStore();
+  // Subscribe to specific state slices instead of entire stores to prevent
+  // unnecessary re-renders (fixes "Maximum update depth exceeded" error).
+  const { nepseIndex: nepse, isLoading: isMarketLoading, lastUpdated } = useMarketStore(
+    useShallow((s) => ({
+      nepseIndex: s.nepseIndex,
+      isLoading: s.isLoading,
+      lastUpdated: s.lastUpdated,
+    })),
+  );
+  const accounts = useAccountStore((s) => s.accounts);
 
-  // Selectors
-  const topGainers = useMarketStore(selectTopNGainers(3));
-  const openIssues = useIPOStore(selectOpenIssues);
+  // Memoize parameterized selectors so a new function isn't created each render.
+  const topGainersSelector = useMemo(() => selectTopNGainers(3), []);
+  const topGainers = useMarketStore(useShallow(topGainersSelector));
+  const openIssues = useIPOStore(useShallow(selectOpenIssues));
 
-  // Load data on mount
+  // Use ref to ensure data is fetched only once on mount.
+  const dataFetched = useRef(false);
   useEffect(() => {
-    marketStore.fetchMarketData();
-    accountStore.loadAccounts();
+    if (dataFetched.current) return;
+    dataFetched.current = true;
+
+    // Call store methods via getState() so the component doesn't need to
+    // subscribe to the methods (which are stable but cause whole-object
+    // subscriptions when obtained from the hook return value).
+    useMarketStore.getState().fetchMarketData();
+    useAccountStore.getState().loadAccounts();
   }, []);
 
-  const nepse = marketStore.nepseIndex;
   const isMarketUp = (nepse?.change ?? 0) >= 0;
   const changeColor = isMarketUp ? '#22C55E' : '#EF4444';
   const changeSign = isMarketUp ? '+' : '';
@@ -325,7 +339,7 @@ export default function DashboardScreen() {
               borderColor="#2A3A5C"
               elevation={4}
             >
-              {marketStore.isLoading ? (
+              {isMarketLoading ? (
                 <YStack gap="$3">
                   <SkeletonBox width={120} height={14} />
                   <SkeletonBox width={200} height={42} />
@@ -395,7 +409,7 @@ export default function DashboardScreen() {
                     <YStack alignItems="flex-end">
                       <SizableText size="$1" color="#8B9AB1">Updated</SizableText>
                       <SizableText size="$2" color="#FFFFFF" fontWeight="700">
-                        {formatTime(marketStore.lastUpdated)}
+                        {formatTime(lastUpdated)}
                       </SizableText>
                     </YStack>
                   </XStack>
@@ -430,7 +444,7 @@ export default function DashboardScreen() {
                   <Users size={18} color="#FFD700" />
                 </YStack>
                 <SizableText size="$5" fontWeight="900" color="#FFFFFF">
-                  {accountStore.accounts.length}
+                  {accounts.length}
                 </SizableText>
                 <SizableText size="$1" color="#8B9AB1" textAlign="center">Accounts</SizableText>
               </YStack>
@@ -574,7 +588,7 @@ export default function DashboardScreen() {
               </Button>
             </XStack>
 
-            {marketStore.isLoading ? (
+            {isMarketLoading ? (
               <YStack gap="$2">
                 {[0, 1, 2].map((i) => (
                   <SkeletonBox key={i} width="100%" height={64} borderRadius={12} />
@@ -609,7 +623,7 @@ export default function DashboardScreen() {
               </Button>
             </XStack>
 
-            {accountStore.accounts.length === 0 ? (
+            {accounts.length === 0 ? (
               <Card
                 backgroundColor="#0D1221"
                 borderRadius="$4"
@@ -653,7 +667,7 @@ export default function DashboardScreen() {
               </Card>
             ) : (
               <YStack gap="$2">
-                {accountStore.accounts.slice(0, 3).map((acc) => (
+                {accounts.slice(0, 3).map((acc) => (
                   <Card
                     key={acc.id}
                     backgroundColor="#0D1221"
@@ -698,14 +712,14 @@ export default function DashboardScreen() {
                     </XStack>
                   </Card>
                 ))}
-                {accountStore.accounts.length > 3 && (
+                {accounts.length > 3 && (
                   <Button
                     size="$3"
                     chromeless
                     onPress={() => router.push('/(tabs)/settings')}
                   >
                     <SizableText size="$2" color="#8B9AB1">
-                      +{accountStore.accounts.length - 3} more accounts
+                      +{accounts.length - 3} more accounts
                     </SizableText>
                   </Button>
                 )}
