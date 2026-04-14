@@ -66,10 +66,10 @@ export function useToast(): ToastContextValue {
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
 const TOAST_COLORS: Record<ToastType, { bg: string; border: string; text: string; icon: string }> = {
-  success: { bg: '#0D2818', border: '#22C55E40', text: '#22C55E', icon: '✓' },
-  error:   { bg: '#2D0A0A', border: '#EF444440', text: '#EF4444', icon: '✕' },
-  warning: { bg: '#2D1F0A', border: '#F59E0B40', text: '#F59E0B', icon: '⚠' },
-  info:    { bg: '#0A1A2D', border: '#3B82F640', text: '#3B82F6', icon: 'ℹ' },
+  success: { bg: '#064e3b', border: '#10b98140', text: '#10b981', icon: '✓' },
+  error:   { bg: '#450a0a', border: '#ef444440', text: '#ef4444', icon: '✕' },
+  warning: { bg: '#451a03', border: '#f59e0b40', text: '#f59e0b', icon: '⚠' },
+  info:    { bg: '#0c2d48', border: '#0ea5e940', text: '#0ea5e9', icon: 'ℹ' },
 };
 
 const TOP_OFFSET = Platform.OS === 'ios' ? 54 : Platform.OS === 'android' ? 34 : 24;

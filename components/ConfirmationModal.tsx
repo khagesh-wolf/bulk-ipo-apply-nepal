@@ -58,14 +58,14 @@ export function useConfirmation(): ConfirmationContextValue {
 // ---------------------------------------------------------------------------
 
 const C = {
-  bg: '#0A0E1A',
-  card: '#0D1221',
-  surface: '#1A2744',
-  border: '#2D3B55',
-  gold: '#FFD700',
-  negative: '#EF4444',
-  muted: '#8B9AB1',
-  white: '#FFFFFF',
+  bg: '#0f172a',
+  card: '#1e293b',
+  surface: '#334155',
+  border: '#475569',
+  gold: '#fbbf24',
+  negative: '#ef4444',
+  muted: '#94a3b8',
+  white: '#f1f5f9',
 };
 
 // ---------------------------------------------------------------------------
@@ -162,7 +162,7 @@ export function ConfirmationProvider({ children }: { children: React.ReactNode }
                   <SizableText
                     size="$3"
                     fontWeight="800"
-                    color={options.destructive ? C.white : '#0A0E1A'}
+                    color={options.destructive ? C.white : '#0f172a'}
                   >
                     {options.confirmText || 'Confirm'}
                   </SizableText>
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#2D3B55',
+    borderColor: '#475569',
   },
   confirmButton: {
     paddingHorizontal: 24,

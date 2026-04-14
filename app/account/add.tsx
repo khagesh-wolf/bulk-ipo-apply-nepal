@@ -41,27 +41,27 @@ import { useConfirmation } from '@/components/ConfirmationModal';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg: '#0A0E1A',
-  card: '#0D1221',
-  surface: '#1A2744',
-  border: '#2D3B55',
-  gold: '#FFD700',
-  positive: '#22C55E',
-  negative: '#EF4444',
-  muted: '#8B9AB1',
-  white: '#FFFFFF',
-  text: '#E2E8F0',
+  bg: '#0f172a',
+  card: '#1e293b',
+  surface: '#334155',
+  border: '#475569',
+  gold: '#fbbf24',
+  positive: '#10b981',
+  negative: '#ef4444',
+  muted: '#94a3b8',
+  white: '#f1f5f9',
+  text: '#e2e8f0',
 };
 
 const topPad = Platform.OS === 'ios' ? 54 : Platform.OS === 'android' ? 34 : 24;
 
 const inputBase: any = {
-  backgroundColor: '#1A2744',
-  borderColor: '#2D3B55',
+  backgroundColor: '#334155',
+  borderColor: '#475569',
   borderWidth: 1,
   borderRadius: 12,
   padding: 14,
-  color: '#FFFFFF',
+  color: '#f1f5f9',
   fontSize: 15,
   ...(Platform.OS === 'web' ? { outlineStyle: 'none' } : {}),
 };
@@ -767,8 +767,8 @@ export default function AddAccountScreen() {
           }}
           activeOpacity={0.85}
         >
-          <Lock size={18} color="#0A0E1A" />
-          <SizableText size="$4" fontWeight="800" color="#0A0E1A">
+          <Lock size={18} color="#0f172a" />
+          <SizableText size="$4" fontWeight="800" color="#0f172a">
             {isSaving ? 'Saving…' : 'Save Account Securely'}
           </SizableText>
         </TouchableOpacity>

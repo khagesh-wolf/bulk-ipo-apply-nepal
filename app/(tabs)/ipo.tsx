@@ -61,9 +61,9 @@ function formatDate(dateStr: string): string {
 
 function ShareTypeBadge({ type }: { type: string }) {
   const color =
-    type === 'Ordinary' ? '#22C55E' :
-    type === 'Right'    ? '#3B82F6' :
-    type === 'FPO'      ? '#F59E0B' : '#8B9AB1';
+    type === 'Ordinary' ? '#10b981' :
+    type === 'Right'    ? '#0ea5e9' :
+    type === 'FPO'      ? '#f59e0b' : '#94a3b8';
   return (
     <YStack
       paddingHorizontal="$2"
@@ -81,11 +81,11 @@ function ShareTypeBadge({ type }: { type: string }) {
 
 function StatusBadgeCustom({ status }: { status: string }) {
   const map: Record<string, { color: string; bg: string; label: string }> = {
-    APPLIED:      { color: '#3B82F6', bg: '#3B82F620', label: 'Applied' },
-    ALLOTTED:     { color: '#22C55E', bg: '#22C55E20', label: 'Allotted ✓' },
-    NOT_ALLOTTED: { color: '#8B9AB1', bg: '#8B9AB120', label: 'Not Allotted' },
-    FAILED:       { color: '#EF4444', bg: '#EF444420', label: 'Failed' },
-    PENDING:      { color: '#F59E0B', bg: '#F59E0B20', label: 'Pending' },
+    APPLIED:      { color: '#0ea5e9', bg: '#0ea5e920', label: 'Applied' },
+    ALLOTTED:     { color: '#10b981', bg: '#10b98120', label: 'Allotted ✓' },
+    NOT_ALLOTTED: { color: '#94a3b8', bg: '#94a3b820', label: 'Not Allotted' },
+    FAILED:       { color: '#ef4444', bg: '#ef444420', label: 'Failed' },
+    PENDING:      { color: '#f59e0b', bg: '#f59e0b20', label: 'Pending' },
   };
   const cfg = map[status] ?? map['PENDING'];
   return (
@@ -182,12 +182,12 @@ function BulkApplyModal({
         justifyContent="flex-end"
       >
         <YStack
-          backgroundColor="#0D1221"
+          backgroundColor="#1e293b"
           borderTopLeftRadius={24}
           borderTopRightRadius={24}
           maxHeight="90%"
           borderWidth={1}
-          borderColor="#1A2744"
+          borderColor="#334155"
         >
           {/* Modal Header */}
           <XStack
@@ -196,16 +196,16 @@ function BulkApplyModal({
             alignItems="center"
             justifyContent="space-between"
             borderBottomWidth={1}
-            borderColor="#1A2744"
+            borderColor="#334155"
           >
             <YStack flex={1} paddingRight="$3">
-              <SizableText size="$2" color="#8B9AB1" fontWeight="600">BULK APPLY</SizableText>
+              <SizableText size="$2" color="#94a3b8" fontWeight="600">BULK APPLY</SizableText>
               <SizableText size="$4" fontWeight="900" color="#FFFFFF" numberOfLines={2}>
                 {issue?.companyName}
               </SizableText>
             </YStack>
             <TouchableOpacity onPress={handleClose} style={{ padding: 8 }}>
-              <X size={22} color="#8B9AB1" />
+              <X size={22} color="#94a3b8" />
             </TouchableOpacity>
           </XStack>
 
@@ -216,17 +216,17 @@ function BulkApplyModal({
                 <>
                   {/* Issue details */}
                   <XStack gap="$3">
-                    <YStack flex={1} backgroundColor="#1A2744" padding="$3" borderRadius="$3">
-                      <SizableText size="$1" color="#8B9AB1">Min Units</SizableText>
+                    <YStack flex={1} backgroundColor="#334155" padding="$3" borderRadius="$3">
+                      <SizableText size="$1" color="#94a3b8">Min Units</SizableText>
                       <SizableText size="$4" fontWeight="800" color="#FFFFFF">{issue?.minUnit}</SizableText>
                     </YStack>
-                    <YStack flex={1} backgroundColor="#1A2744" padding="$3" borderRadius="$3">
-                      <SizableText size="$1" color="#8B9AB1">Max Units</SizableText>
+                    <YStack flex={1} backgroundColor="#334155" padding="$3" borderRadius="$3">
+                      <SizableText size="$1" color="#94a3b8">Max Units</SizableText>
                       <SizableText size="$4" fontWeight="800" color="#FFFFFF">{issue?.maxUnit}</SizableText>
                     </YStack>
-                    <YStack flex={1} backgroundColor="#1A2744" padding="$3" borderRadius="$3">
-                      <SizableText size="$1" color="#8B9AB1">Price/Unit</SizableText>
-                      <SizableText size="$4" fontWeight="800" color="#FFD700">Rs.{issue?.pricePerUnit}</SizableText>
+                    <YStack flex={1} backgroundColor="#334155" padding="$3" borderRadius="$3">
+                      <SizableText size="$1" color="#94a3b8">Price/Unit</SizableText>
+                      <SizableText size="$4" fontWeight="800" color="#fbbf24">Rs.{issue?.pricePerUnit}</SizableText>
                     </YStack>
                   </XStack>
 
@@ -238,11 +238,11 @@ function BulkApplyModal({
                       onChangeText={(t) => setUnits(t.replace(/[^0-9]/g, ''))}
                       keyboardType="numeric"
                       placeholder={`Min: ${issue?.minUnit}`}
-                      placeholderTextColor="#4A5568"
+                      placeholderTextColor="#64748b"
                       style={{
-                        backgroundColor: '#1A2744',
+                        backgroundColor: '#334155',
                         borderWidth: 1,
-                        borderColor: units && parseInt(units) >= (issue?.minUnit ?? 0) ? '#FFD700' : '#2A3A5C',
+                        borderColor: units && parseInt(units) >= (issue?.minUnit ?? 0) ? '#fbbf24' : '#475569',
                         borderRadius: 12,
                         padding: 14,
                         color: '#FFFFFF',
@@ -251,7 +251,7 @@ function BulkApplyModal({
                       }}
                     />
                     {units && issue && parseInt(units) > 0 && (
-                      <SizableText size="$2" color="#8B9AB1">
+                      <SizableText size="$2" color="#94a3b8">
                         Total investment: Rs. {(parseInt(units) * (issue.pricePerUnit ?? 100)).toLocaleString()} per account
                       </SizableText>
                     )}
@@ -264,7 +264,7 @@ function BulkApplyModal({
                         Select Accounts ({selectedIds.length}/{activeAccounts.length})
                       </SizableText>
                       <TouchableOpacity onPress={toggleAll}>
-                        <SizableText size="$2" color="#FFD700" fontWeight="700">
+                        <SizableText size="$2" color="#fbbf24" fontWeight="700">
                           {allSelected ? 'Deselect All' : 'Select All'}
                         </SizableText>
                       </TouchableOpacity>
@@ -273,13 +273,13 @@ function BulkApplyModal({
                     {activeAccounts.length === 0 ? (
                       <YStack
                         padding="$4"
-                        backgroundColor="#1A2744"
+                        backgroundColor="#334155"
                         borderRadius="$3"
                         alignItems="center"
                         gap="$2"
                       >
-                        <Users size={24} color="#8B9AB1" />
-                        <SizableText size="$2" color="#8B9AB1" textAlign="center">
+                        <Users size={24} color="#94a3b8" />
+                        <SizableText size="$2" color="#94a3b8" textAlign="center">
                           No active accounts. Add accounts in Settings.
                         </SizableText>
                       </YStack>
@@ -292,9 +292,9 @@ function BulkApplyModal({
                               key={acc.id}
                               onPress={() => toggleAccount(acc.id)}
                               style={{
-                                backgroundColor: isChecked ? '#1A2744' : '#0A0E1A',
+                                backgroundColor: isChecked ? '#334155' : '#0f172a',
                                 borderWidth: 1.5,
-                                borderColor: isChecked ? '#FFD700' : '#2A3A5C',
+                                borderColor: isChecked ? '#fbbf24' : '#475569',
                                 borderRadius: 12,
                                 padding: 14,
                                 flexDirection: 'row',
@@ -308,13 +308,13 @@ function BulkApplyModal({
                                 height={22}
                                 borderRadius={6}
                                 borderWidth={2}
-                                borderColor={isChecked ? '#FFD700' : '#4A5568'}
-                                backgroundColor={isChecked ? '#FFD700' : 'transparent'}
+                                borderColor={isChecked ? '#fbbf24' : '#64748b'}
+                                backgroundColor={isChecked ? '#fbbf24' : 'transparent'}
                                 alignItems="center"
                                 justifyContent="center"
                               >
                                 {isChecked && (
-                                  <SizableText size="$1" color="#0A0E1A" fontWeight="900">✓</SizableText>
+                                  <SizableText size="$1" color="#0f172a" fontWeight="900">✓</SizableText>
                                 )}
                               </YStack>
 
@@ -323,11 +323,11 @@ function BulkApplyModal({
                                 width={40}
                                 height={40}
                                 borderRadius={20}
-                                backgroundColor="#2A3A5C"
+                                backgroundColor="#475569"
                                 alignItems="center"
                                 justifyContent="center"
                               >
-                                <SizableText size="$3" fontWeight="900" color="#FFD700">
+                                <SizableText size="$3" fontWeight="900" color="#fbbf24">
                                   {acc.nickname?.charAt(0)?.toUpperCase() ?? 'A'}
                                 </SizableText>
                               </YStack>
@@ -337,7 +337,7 @@ function BulkApplyModal({
                                 <SizableText size="$3" fontWeight="700" color="#FFFFFF">
                                   {acc.nickname}
                                 </SizableText>
-                                <SizableText size="$2" color="#8B9AB1">
+                                <SizableText size="$2" color="#94a3b8">
                                   DP: {'*'.repeat(6)}{acc.dpId?.slice(-4) ?? '****'}
                                 </SizableText>
                               </YStack>
@@ -352,9 +352,9 @@ function BulkApplyModal({
                 /* Results view */
                 <YStack gap="$3">
                   <YStack alignItems="center" gap="$2" paddingVertical="$3">
-                    <CheckCircle2 size={48} color="#22C55E" />
+                    <CheckCircle2 size={48} color="#10b981" />
                     <SizableText size="$5" fontWeight="900" color="#FFFFFF">Applications Submitted</SizableText>
-                    <SizableText size="$3" color="#8B9AB1">
+                    <SizableText size="$3" color="#94a3b8">
                       {results.filter((r) => r.success).length} of {results.length} successful
                     </SizableText>
                   </YStack>
@@ -363,27 +363,27 @@ function BulkApplyModal({
                     {results.map((res) => (
                       <XStack
                         key={res.accountId}
-                        backgroundColor="#1A2744"
+                        backgroundColor="#334155"
                         borderRadius="$3"
                         padding="$3"
                         alignItems="center"
                         gap="$3"
                         borderWidth={1}
-                        borderColor={res.success ? '#22C55E40' : '#EF444440'}
+                        borderColor={res.success ? '#10b98140' : '#ef444440'}
                       >
                         {res.success
-                          ? <CheckCircle2 size={20} color="#22C55E" />
-                          : <AlertCircle size={20} color="#EF4444" />
+                          ? <CheckCircle2 size={20} color="#10b981" />
+                          : <AlertCircle size={20} color="#ef4444" />
                         }
                         <YStack flex={1}>
                           <SizableText size="$3" fontWeight="700" color="#FFFFFF">
                             {res.accountNickname}
                           </SizableText>
                           {res.errorMessage && (
-                            <SizableText size="$1" color="#EF4444">{res.errorMessage}</SizableText>
+                            <SizableText size="$1" color="#ef4444">{res.errorMessage}</SizableText>
                           )}
                           {res.success && (
-                            <SizableText size="$1" color="#22C55E">Applied successfully</SizableText>
+                            <SizableText size="$1" color="#10b981">Applied successfully</SizableText>
                           )}
                         </YStack>
                         <StatusBadgeCustom status={res.success ? 'APPLIED' : 'FAILED'} />
@@ -400,28 +400,28 @@ function BulkApplyModal({
             padding="$4"
             paddingBottom={Platform.OS === 'ios' ? 34 : 16}
             borderTopWidth={1}
-            borderColor="#1A2744"
+            borderColor="#334155"
             gap="$3"
           >
             {!applied ? (
               <>
                 <XStack
-                  backgroundColor="#1A2744"
+                  backgroundColor="#334155"
                   borderRadius="$3"
                   padding="$3"
                   alignItems="center"
                   gap="$2"
                 >
-                  <AlertCircle size={14} color="#8B9AB1" />
-                  <SizableText size="$1" color="#8B9AB1" flex={1}>
+                  <AlertCircle size={14} color="#94a3b8" />
+                  <SizableText size="$1" color="#94a3b8" flex={1}>
                     Applying to {selectedIds.length} account{selectedIds.length !== 1 ? 's' : ''}.
                     Min investment: Rs. {((parseInt(units) || (issue?.minUnit ?? 10)) * (issue?.pricePerUnit ?? 100) * selectedIds.length).toLocaleString()} total.
                   </SizableText>
                 </XStack>
                 <Button
                   size="$5"
-                  backgroundColor={selectedIds.length === 0 ? '#4A5568' : '#FFD700'}
-                  color="#0A0E1A"
+                  backgroundColor={selectedIds.length === 0 ? '#64748b' : '#fbbf24'}
+                  color="#0f172a"
                   fontWeight="900"
                   borderRadius="$4"
                   disabled={selectedIds.length === 0 || isApplying}
@@ -430,8 +430,8 @@ function BulkApplyModal({
                 >
                   {isApplying ? (
                     <XStack alignItems="center" gap="$2">
-                      <ActivityIndicator size="small" color="#0A0E1A" />
-                      <SizableText color="#0A0E1A" fontWeight="900">Applying…</SizableText>
+                      <ActivityIndicator size="small" color="#0f172a" />
+                      <SizableText color="#0f172a" fontWeight="900">Applying…</SizableText>
                     </XStack>
                   ) : (
                     `Apply to ${selectedIds.length} Account${selectedIds.length !== 1 ? 's' : ''}`
@@ -441,12 +441,12 @@ function BulkApplyModal({
             ) : (
               <Button
                 size="$5"
-                backgroundColor="#1A2744"
+                backgroundColor="#334155"
                 color="#FFFFFF"
                 fontWeight="800"
                 borderRadius="$4"
                 borderWidth={1}
-                borderColor="#2A3A5C"
+                borderColor="#475569"
                 pressStyle={{ opacity: 0.8 }}
                 onPress={handleClose}
               >
@@ -471,68 +471,84 @@ interface IssueCardProps {
 function ActiveIssueCard({ issue, onBulkApply, onSingleApply }: IssueCardProps) {
   const days = daysUntil(issue.closeDate);
   const minInvestment = issue.minUnit * issue.pricePerUnit;
+  const totalDays = Math.max(1, Math.ceil(
+    (new Date(issue.closeDate).getTime() - new Date(issue.openDate).getTime()) / (1000 * 60 * 60 * 24)
+  ));
+  const elapsed = totalDays - days;
+  const progressPercent = Math.min(100, Math.max(0, Math.round((elapsed / totalDays) * 100)));
 
   return (
     <Card
-      backgroundColor="#0D1221"
+      backgroundColor="#1e293b"
       borderRadius="$5"
       padding="$4"
       marginBottom="$3"
       borderWidth={1}
-      borderColor="#1A2744"
+      borderColor="#334155"
       elevation={4}
     >
       <YStack gap="$3">
         {/* Top row */}
         <XStack alignItems="flex-start" justifyContent="space-between">
           <YStack flex={1} paddingRight="$3" gap="$1">
-            <SizableText size="$4" fontWeight="900" color="#FFFFFF" numberOfLines={2}>
+            <SizableText size="$4" fontWeight="900" color="#f1f5f9" numberOfLines={2}>
               {issue.companyName}
             </SizableText>
             <XStack alignItems="center" gap="$2">
-              <SizableText size="$2" color="#8B9AB1" fontWeight="700">{issue.symbol}</SizableText>
+              <SizableText size="$2" color="#94a3b8" fontWeight="700">{issue.symbol}</SizableText>
             </XStack>
             <XStack gap="$3" marginTop="$1">
               <YStack>
-                <SizableText size="$1" color="#8B9AB1">Opens</SizableText>
-                <SizableText size="$2" color="#FFFFFF" fontWeight="700">{formatDate(issue.openDate)}</SizableText>
+                <SizableText size="$1" color="#94a3b8">Opens</SizableText>
+                <SizableText size="$2" color="#f1f5f9" fontWeight="700">{formatDate(issue.openDate)}</SizableText>
               </YStack>
               <YStack>
-                <SizableText size="$1" color="#8B9AB1">Closes</SizableText>
-                <SizableText size="$2" color="#FFFFFF" fontWeight="700">{formatDate(issue.closeDate)}</SizableText>
+                <SizableText size="$1" color="#94a3b8">Closes</SizableText>
+                <SizableText size="$2" color="#f1f5f9" fontWeight="700">{formatDate(issue.closeDate)}</SizableText>
               </YStack>
             </XStack>
           </YStack>
           <XStack gap="$2" alignItems="center" flexWrap="wrap" justifyContent="flex-end">
             <ShareTypeBadge type={issue.shareType} />
             {days <= 3 && (
-              <YStack paddingHorizontal="$2" paddingVertical="$0.5" borderRadius="$10" backgroundColor="#EF444420">
-                <SizableText size="$1" color="#EF4444" fontWeight="800">Closing Soon</SizableText>
+              <YStack paddingHorizontal="$2" paddingVertical="$0.5" borderRadius="$10" backgroundColor="#ef444420">
+                <SizableText size="$1" color="#ef4444" fontWeight="800">Closing Soon</SizableText>
               </YStack>
             )}
           </XStack>
         </XStack>
 
-        {/* Progress bar placeholder */}
-        <YStack
-          backgroundColor="#1A2744"
-          borderRadius="$2"
-          padding="$2"
-          paddingHorizontal="$3"
-        >
-          <XStack alignItems="center" gap="$2">
+        {/* Progress bar */}
+        <YStack gap="$1">
+          <YStack
+            height={4}
+            backgroundColor="#334155"
+            borderRadius={2}
+            overflow="hidden"
+          >
             <YStack
-              width={8}
-              height={8}
-              borderRadius={4}
-              backgroundColor="#22C55E"
+              height={4}
+              borderRadius={2}
+              width={`${progressPercent}%` as any}
+              backgroundColor={progressPercent > 75 ? '#ef4444' : progressPercent > 50 ? '#f59e0b' : '#0ea5e9'}
             />
-            <SizableText size="$2" color="#22C55E" fontWeight="700">Applications Open</SizableText>
-            <XStack flex={1} />
-            <Clock size={12} color="#8B9AB1" />
-            <SizableText size="$1" color={days <= 3 ? '#EF4444' : '#8B9AB1'}>
-              Closes in {days} day{days !== 1 ? 's' : ''}
-            </SizableText>
+          </YStack>
+          <XStack alignItems="center" justifyContent="space-between">
+            <XStack alignItems="center" gap="$2">
+              <YStack
+                width={8}
+                height={8}
+                borderRadius={4}
+                backgroundColor="#10b981"
+              />
+              <SizableText size="$1" color="#10b981" fontWeight="700">Applications Open</SizableText>
+            </XStack>
+            <XStack alignItems="center" gap="$1">
+              <Clock size={12} color="#94a3b8" />
+              <SizableText size="$1" color={days <= 3 ? '#ef4444' : '#94a3b8'}>
+                {days} day{days !== 1 ? 's' : ''} left ({progressPercent}%)
+              </SizableText>
+            </XStack>
           </XStack>
         </YStack>
 
@@ -540,35 +556,35 @@ function ActiveIssueCard({ issue, onBulkApply, onSingleApply }: IssueCardProps) 
         <XStack gap="$2">
           <YStack
             flex={1}
-            backgroundColor="#1A2744"
+            backgroundColor="#0f172a"
             borderRadius="$3"
             padding="$2"
             alignItems="center"
           >
-            <SizableText size="$1" color="#8B9AB1">Min Units</SizableText>
-            <SizableText size="$3" fontWeight="800" color="#FFFFFF">{issue.minUnit}</SizableText>
+            <SizableText size="$1" color="#94a3b8">Min Units</SizableText>
+            <SizableText size="$3" fontWeight="800" color="#f1f5f9">{issue.minUnit}</SizableText>
           </YStack>
           <YStack
             flex={1}
-            backgroundColor="#1A2744"
+            backgroundColor="#0f172a"
             borderRadius="$3"
             padding="$2"
             alignItems="center"
           >
-            <SizableText size="$1" color="#8B9AB1">Max Units</SizableText>
-            <SizableText size="$3" fontWeight="800" color="#FFFFFF">{issue.maxUnit}</SizableText>
+            <SizableText size="$1" color="#94a3b8">Max Units</SizableText>
+            <SizableText size="$3" fontWeight="800" color="#f1f5f9">{issue.maxUnit}</SizableText>
           </YStack>
           <YStack
             flex={1}
-            backgroundColor="#FFD70015"
+            backgroundColor="#fbbf2415"
             borderRadius="$3"
             padding="$2"
             alignItems="center"
             borderWidth={1}
-            borderColor="#FFD70030"
+            borderColor="#fbbf2430"
           >
-            <SizableText size="$1" color="#8B9AB1">Min Invest</SizableText>
-            <SizableText size="$2" fontWeight="800" color="#FFD700">
+            <SizableText size="$1" color="#94a3b8">Min Invest</SizableText>
+            <SizableText size="$2" fontWeight="800" color="#fbbf24">
               Rs.{minInvestment.toLocaleString()}
             </SizableText>
           </YStack>
@@ -576,39 +592,39 @@ function ActiveIssueCard({ issue, onBulkApply, onSingleApply }: IssueCardProps) 
 
         {/* Price per unit */}
         <XStack alignItems="center" justifyContent="space-between">
-          <SizableText size="$2" color="#8B9AB1">Price per unit</SizableText>
-          <SizableText size="$4" fontWeight="900" color="#FFFFFF">Rs. {issue.pricePerUnit.toLocaleString()}</SizableText>
+          <SizableText size="$2" color="#94a3b8">Price per unit</SizableText>
+          <SizableText size="$4" fontWeight="900" color="#f1f5f9">Rs. {issue.pricePerUnit.toLocaleString()}</SizableText>
         </XStack>
 
-        <Separator borderColor="#1A2744" />
+        <Separator borderColor="#334155" />
 
         {/* Action buttons */}
         <XStack gap="$3">
           <Button
             flex={1}
             size="$4"
-            backgroundColor="#FFD700"
-            color="#0A0E1A"
+            backgroundColor="#fbbf24"
+            color="#0f172a"
             fontWeight="900"
             borderRadius="$3"
             pressStyle={{ opacity: 0.8, scale: 0.97 }}
             onPress={onBulkApply}
           >
             <XStack alignItems="center" gap="$2">
-              <Zap size={14} color="#0A0E1A" />
-              <SizableText color="#0A0E1A" fontWeight="900" size="$3">Bulk Apply</SizableText>
+              <Zap size={14} color="#0f172a" />
+              <SizableText color="#0f172a" fontWeight="900" size="$3">Bulk Apply</SizableText>
             </XStack>
           </Button>
           <Button
             flex={1}
             size="$4"
             backgroundColor="transparent"
-            color="#FFD700"
+            color="#0ea5e9"
             fontWeight="700"
             borderRadius="$3"
             borderWidth={1.5}
-            borderColor="#FFD700"
-            pressStyle={{ opacity: 0.7, backgroundColor: '#FFD70010' }}
+            borderColor="#0ea5e9"
+            pressStyle={{ opacity: 0.7, backgroundColor: '#0ea5e910' }}
             onPress={onSingleApply}
           >
             Single Apply
@@ -625,12 +641,12 @@ function UpcomingIssueCard({ issue }: { issue: IPOIssue }) {
   const days = daysFromNow(issue.openDate);
   return (
     <Card
-      backgroundColor="#0D1221"
+      backgroundColor="#1e293b"
       borderRadius="$5"
       padding="$4"
       marginBottom="$3"
       borderWidth={1}
-      borderColor="#1A2744"
+      borderColor="#334155"
       elevation={4}
       opacity={0.75}
     >
@@ -641,47 +657,47 @@ function UpcomingIssueCard({ issue }: { issue: IPOIssue }) {
               {issue.companyName}
             </SizableText>
             <XStack alignItems="center" gap="$2">
-              <SizableText size="$2" color="#8B9AB1" fontWeight="700">{issue.symbol}</SizableText>
+              <SizableText size="$2" color="#94a3b8" fontWeight="700">{issue.symbol}</SizableText>
             </XStack>
             <XStack gap="$3" marginTop="$1">
               <YStack>
-                <SizableText size="$1" color="#8B9AB1">Opens</SizableText>
+                <SizableText size="$1" color="#94a3b8">Opens</SizableText>
                 <SizableText size="$2" color="#FFFFFF" fontWeight="700">{formatDate(issue.openDate)}</SizableText>
               </YStack>
               <YStack>
-                <SizableText size="$1" color="#8B9AB1">Closes</SizableText>
+                <SizableText size="$1" color="#94a3b8">Closes</SizableText>
                 <SizableText size="$2" color="#FFFFFF" fontWeight="700">{formatDate(issue.closeDate)}</SizableText>
               </YStack>
             </XStack>
           </YStack>
           <XStack gap="$2" flexWrap="wrap" justifyContent="flex-end">
             <ShareTypeBadge type={issue.shareType} />
-            <YStack paddingHorizontal="$2" paddingVertical="$0.5" borderRadius="$10" backgroundColor="#8B9AB120">
-              <SizableText size="$1" color="#8B9AB1" fontWeight="800">Upcoming</SizableText>
+            <YStack paddingHorizontal="$2" paddingVertical="$0.5" borderRadius="$10" backgroundColor="#94a3b820">
+              <SizableText size="$1" color="#94a3b8" fontWeight="800">Upcoming</SizableText>
             </YStack>
           </XStack>
         </XStack>
 
         <XStack
-          backgroundColor="#1A2744"
+          backgroundColor="#334155"
           borderRadius="$3"
           padding="$3"
           alignItems="center"
           gap="$2"
         >
-          <Clock size={14} color="#8B9AB1" />
-          <SizableText size="$2" color="#8B9AB1">
+          <Clock size={14} color="#94a3b8" />
+          <SizableText size="$2" color="#94a3b8">
             Opens in {days} day{days !== 1 ? 's' : ''} — {formatDate(issue.openDate)}
           </SizableText>
         </XStack>
 
         <XStack alignItems="center" justifyContent="space-between">
           <YStack>
-            <SizableText size="$1" color="#8B9AB1">Price per unit</SizableText>
+            <SizableText size="$1" color="#94a3b8">Price per unit</SizableText>
             <SizableText size="$3" fontWeight="800" color="#FFFFFF">Rs. {issue.pricePerUnit.toLocaleString()}</SizableText>
           </YStack>
           <YStack alignItems="flex-end">
-            <SizableText size="$1" color="#8B9AB1">Min / Max Units</SizableText>
+            <SizableText size="$1" color="#94a3b8">Min / Max Units</SizableText>
             <SizableText size="$3" fontWeight="700" color="#FFFFFF">{issue.minUnit} / {issue.maxUnit}</SizableText>
           </YStack>
         </XStack>
@@ -695,12 +711,12 @@ function UpcomingIssueCard({ issue }: { issue: IPOIssue }) {
 function ApplicationRow({ app }: { app: IPOApplication }) {
   return (
     <XStack
-      backgroundColor="#0D1221"
+      backgroundColor="#1e293b"
       borderRadius="$4"
       padding="$3"
       marginBottom="$2"
       borderWidth={1}
-      borderColor="#1A2744"
+      borderColor="#334155"
       alignItems="center"
       gap="$3"
     >
@@ -708,12 +724,12 @@ function ApplicationRow({ app }: { app: IPOApplication }) {
         width={44}
         height={44}
         borderRadius={22}
-        backgroundColor="#1A2744"
+        backgroundColor="#334155"
         alignItems="center"
         justifyContent="center"
         flexShrink={0}
       >
-        <SizableText size="$3" fontWeight="900" color="#FFD700">
+        <SizableText size="$3" fontWeight="900" color="#fbbf24">
           {app.companyName?.charAt(0) ?? 'I'}
         </SizableText>
       </YStack>
@@ -722,10 +738,10 @@ function ApplicationRow({ app }: { app: IPOApplication }) {
         <SizableText size="$3" fontWeight="700" color="#FFFFFF" numberOfLines={1}>
           {app.companyName}
         </SizableText>
-        <SizableText size="$1" color="#8B9AB1">
+        <SizableText size="$1" color="#94a3b8">
           {app.accountNickname} · {app.appliedUnits} units
         </SizableText>
-        <SizableText size="$1" color="#4A5568">
+        <SizableText size="$1" color="#64748b">
           {new Date(app.appliedDate).toLocaleDateString('en-NP', { month: 'short', day: 'numeric' })}
         </SizableText>
       </YStack>
@@ -788,7 +804,7 @@ export default function IPOScreen() {
   }
 
   return (
-    <YStack flex={1} backgroundColor="#0A0E1A">
+    <YStack flex={1} backgroundColor="#0f172a">
       <ScrollView flex={1} showsVerticalScrollIndicator={false}>
         <YStack style={{ paddingTop: topPad }} paddingBottom="$8">
 
@@ -801,13 +817,13 @@ export default function IPOScreen() {
           >
             <YStack>
               <H2
-                color="#FFD700"
+                color="#0ea5e9"
                 fontWeight="900"
                 style={{ letterSpacing: -0.5 }}
               >
                 IPO Center
               </H2>
-              <SizableText size="$2" color="#8B9AB1">Active &amp; Upcoming Issues</SizableText>
+              <SizableText size="$2" color="#94a3b8">Active &amp; Upcoming Issues</SizableText>
             </YStack>
 
             <XStack gap="$2" alignItems="center">
@@ -818,17 +834,17 @@ export default function IPOScreen() {
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 6,
-                  backgroundColor: '#3B82F620',
+                  backgroundColor: '#0ea5e920',
                   borderWidth: 1,
-                  borderColor: '#3B82F650',
+                  borderColor: '#0ea5e950',
                   borderRadius: 10,
                   paddingHorizontal: 12,
                   paddingVertical: 8,
                 }}
                 activeOpacity={0.7}
               >
-                <Search size={14} color="#3B82F6" />
-                <SizableText size="$2" color="#3B82F6" fontWeight="700">
+                <Search size={14} color="#0ea5e9" />
+                <SizableText size="$2" color="#0ea5e9" fontWeight="700">
                   Check Results
                 </SizableText>
               </TouchableOpacity>
@@ -843,7 +859,7 @@ export default function IPOScreen() {
               >
                 <RefreshCw
                   size={20}
-                  color={isRefreshing ? '#FFD700' : '#8B9AB1'}
+                  color={isRefreshing ? '#fbbf24' : '#94a3b8'}
                   style={isRefreshing ? { transform: [{ rotate: '45deg' }] } : undefined}
                 />
               </Button>
@@ -856,11 +872,11 @@ export default function IPOScreen() {
             marginBottom="$4"
           >
             <XStack
-              backgroundColor="#0D1221"
+              backgroundColor="#1e293b"
               borderRadius="$10"
               padding="$1"
               borderWidth={1}
-              borderColor="#1A2744"
+              borderColor="#334155"
               gap="$1"
             >
               <TouchableOpacity
@@ -869,13 +885,13 @@ export default function IPOScreen() {
                   paddingHorizontal: 20,
                   paddingVertical: 10,
                   borderRadius: 20,
-                  backgroundColor: activeTab === 'active' ? '#FFD700' : 'transparent',
+                  backgroundColor: activeTab === 'active' ? '#0ea5e9' : 'transparent',
                 }}
               >
                 <SizableText
                   size="$3"
                   fontWeight="800"
-                  color={activeTab === 'active' ? '#0A0E1A' : '#8B9AB1'}
+                  color={activeTab === 'active' ? '#FFFFFF' : '#94a3b8'}
                 >
                   Active ({openIssues.length})
                 </SizableText>
@@ -886,13 +902,13 @@ export default function IPOScreen() {
                   paddingHorizontal: 20,
                   paddingVertical: 10,
                   borderRadius: 20,
-                  backgroundColor: activeTab === 'upcoming' ? '#FFD700' : 'transparent',
+                  backgroundColor: activeTab === 'upcoming' ? '#0ea5e9' : 'transparent',
                 }}
               >
                 <SizableText
                   size="$3"
                   fontWeight="800"
-                  color={activeTab === 'upcoming' ? '#0A0E1A' : '#8B9AB1'}
+                  color={activeTab === 'upcoming' ? '#FFFFFF' : '#94a3b8'}
                 >
                   Upcoming ({upcomingIssues.length})
                 </SizableText>
@@ -903,8 +919,8 @@ export default function IPOScreen() {
           {/* ── Loading state ── */}
           {isLoadingIssues && (
             <YStack alignItems="center" paddingVertical="$6" gap="$3">
-              <ActivityIndicator size="large" color="#FFD700" />
-              <SizableText size="$3" color="#8B9AB1">Loading issues…</SizableText>
+              <ActivityIndicator size="large" color="#fbbf24" />
+              <SizableText size="$3" color="#94a3b8">Loading issues…</SizableText>
             </YStack>
           )}
 
@@ -916,25 +932,25 @@ export default function IPOScreen() {
                   paddingVertical="$8"
                   alignItems="center"
                   gap="$4"
-                  backgroundColor="#0D1221"
+                  backgroundColor="#1e293b"
                   borderRadius="$5"
                   borderWidth={1}
-                  borderColor="#1A2744"
+                  borderColor="#334155"
                   padding="$6"
                 >
                   <YStack
                     width={72}
                     height={72}
                     borderRadius={36}
-                    backgroundColor="#1A2744"
+                    backgroundColor="#334155"
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <TrendingUp size={36} color="#8B9AB1" />
+                    <TrendingUp size={36} color="#94a3b8" />
                   </YStack>
                   <YStack alignItems="center" gap="$2">
                     <SizableText size="$5" fontWeight="800" color="#FFFFFF">No Active IPOs</SizableText>
-                    <Paragraph size="$3" color="#8B9AB1" textAlign="center">
+                    <Paragraph size="$3" color="#94a3b8" textAlign="center">
                       Check back when new issues open. We'll notify you of new opportunities.
                     </Paragraph>
                   </YStack>
@@ -942,13 +958,13 @@ export default function IPOScreen() {
                     size="$4"
                     chromeless
                     borderWidth={1}
-                    borderColor="#1A2744"
+                    borderColor="#334155"
                     borderRadius="$3"
                     onPress={handleRefresh}
                   >
                     <XStack alignItems="center" gap="$2">
-                      <RefreshCw size={14} color="#8B9AB1" />
-                      <SizableText size="$3" color="#8B9AB1">Check Again</SizableText>
+                      <RefreshCw size={14} color="#94a3b8" />
+                      <SizableText size="$3" color="#94a3b8">Check Again</SizableText>
                     </XStack>
                   </Button>
                 </YStack>
@@ -973,16 +989,16 @@ export default function IPOScreen() {
                   paddingVertical="$8"
                   alignItems="center"
                   gap="$4"
-                  backgroundColor="#0D1221"
+                  backgroundColor="#1e293b"
                   borderRadius="$5"
                   borderWidth={1}
-                  borderColor="#1A2744"
+                  borderColor="#334155"
                   padding="$6"
                 >
-                  <Clock size={48} color="#8B9AB1" />
+                  <Clock size={48} color="#94a3b8" />
                   <YStack alignItems="center" gap="$2">
                     <SizableText size="$5" fontWeight="800" color="#FFFFFF">No Upcoming IPOs</SizableText>
-                    <Paragraph size="$3" color="#8B9AB1" textAlign="center">
+                    <Paragraph size="$3" color="#94a3b8" textAlign="center">
                       No upcoming issues at the moment.
                     </Paragraph>
                   </YStack>
@@ -1000,23 +1016,23 @@ export default function IPOScreen() {
             <YStack paddingHorizontal="$4" marginTop="$5">
               <XStack alignItems="center" justifyContent="space-between" marginBottom="$3">
                 <XStack alignItems="center" gap="$2">
-                  <CheckCircle2 size={16} color="#FFD700" />
+                  <CheckCircle2 size={16} color="#fbbf24" />
                   <H3 color="#FFFFFF" fontWeight="800">My Applications</H3>
                 </XStack>
                 <Button
                   size="$3"
                   backgroundColor="transparent"
-                  color="#FFD700"
+                  color="#fbbf24"
                   fontWeight="700"
                   borderRadius="$3"
                   borderWidth={1}
-                  borderColor="#FFD700"
-                  pressStyle={{ opacity: 0.7, backgroundColor: '#FFD70010' }}
+                  borderColor="#fbbf24"
+                  pressStyle={{ opacity: 0.7, backgroundColor: '#fbbf2410' }}
                   onPress={() => useIPOStore.getState().checkResults()}
                 >
                   <XStack alignItems="center" gap="$1">
-                    <RefreshCw size={12} color="#FFD700" />
-                    <SizableText size="$2" color="#FFD700" fontWeight="700">Check Results</SizableText>
+                    <RefreshCw size={12} color="#fbbf24" />
+                    <SizableText size="$2" color="#fbbf24" fontWeight="700">Check Results</SizableText>
                   </XStack>
                 </Button>
               </XStack>
@@ -1034,22 +1050,22 @@ export default function IPOScreen() {
             <XStack
               marginHorizontal="$4"
               marginTop="$3"
-              backgroundColor="#EF444420"
+              backgroundColor="#ef444420"
               borderRadius="$3"
               padding="$3"
               alignItems="center"
               gap="$2"
               borderWidth={1}
-              borderColor="#EF444440"
+              borderColor="#ef444440"
             >
-              <AlertCircle size={16} color="#EF4444" />
-              <SizableText size="$2" color="#EF4444" flex={1}>{ipoError}</SizableText>
+              <AlertCircle size={16} color="#ef4444" />
+              <SizableText size="$2" color="#ef4444" flex={1}>{ipoError}</SizableText>
               <Button
                 size="$2"
                 chromeless
                 onPress={() => useIPOStore.getState().clearError()}
               >
-                <X size={14} color="#EF4444" />
+                <X size={14} color="#ef4444" />
               </Button>
             </XStack>
           )}
