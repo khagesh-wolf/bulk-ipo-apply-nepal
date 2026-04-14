@@ -30,6 +30,7 @@ import {
 } from '@blinkdotnew/mobile-ui';
 import { useShallow } from 'zustand/react/shallow';
 import { useMarketStore, useAccountStore, useIPOStore, selectTopNGainers, selectOpenIssues, selectUpcomingIssues } from '@/store';
+import { maskDpId } from '@/lib';
 
 // useNativeDriver is not supported on web
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
@@ -76,7 +77,7 @@ function LiveDot() {
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: '#22C55E',
+        backgroundColor: '#10b981',
         opacity,
       }}
     />
@@ -87,9 +88,9 @@ function LiveDot() {
 
 function ShareTypeBadge({ type }: { type: string }) {
   const color =
-    type === 'Ordinary' ? '#22C55E' :
-    type === 'Right'    ? '#3B82F6' :
-    type === 'FPO'      ? '#F59E0B' : '#8B9AB1';
+    type === 'Ordinary' ? '#10b981' :
+    type === 'Right'    ? '#0ea5e9' :
+    type === 'FPO'      ? '#f59e0b' : '#94a3b8';
   return (
     <YStack
       paddingHorizontal="$2"
@@ -111,21 +112,21 @@ function IPOCard({ issue, onApply }: { issue: any; onApply: () => void }) {
   const days = daysUntil(issue.closeDate);
   return (
     <Card
-      backgroundColor="#1A2744"
+      backgroundColor="#334155"
       borderRadius="$4"
       padding="$4"
       marginRight="$3"
       width={220}
       borderWidth={1}
-      borderColor="#2A3A5C"
+      borderColor="#475569"
       elevation={4}
     >
       <YStack gap="$2" flex={1}>
         <XStack alignItems="center" justifyContent="space-between">
           <ShareTypeBadge type={issue.shareType} />
           {days <= 3 && (
-            <YStack paddingHorizontal="$2" paddingVertical="$1" borderRadius="$10" backgroundColor="#EF444420">
-              <SizableText size="$1" color="#EF4444" fontWeight="700">Closing soon</SizableText>
+            <YStack paddingHorizontal="$2" paddingVertical="$1" borderRadius="$10" backgroundColor="#ef444420">
+              <SizableText size="$1" color="#ef4444" fontWeight="700">Closing soon</SizableText>
             </YStack>
           )}
         </XStack>
@@ -135,28 +136,28 @@ function IPOCard({ issue, onApply }: { issue: any; onApply: () => void }) {
         </SizableText>
 
         <XStack alignItems="center" gap="$1">
-          <SizableText size="$2" color="#8B9AB1">{issue.symbol}</SizableText>
+          <SizableText size="$2" color="#94a3b8">{issue.symbol}</SizableText>
         </XStack>
 
-        <Separator borderColor="#2A3A5C" />
+        <Separator borderColor="#475569" />
 
         <XStack justifyContent="space-between" alignItems="center">
           <YStack>
-            <SizableText size="$1" color="#8B9AB1">Closes in</SizableText>
-            <SizableText size="$2" color={days <= 3 ? '#EF4444' : '#FFD700'} fontWeight="700">
+            <SizableText size="$1" color="#94a3b8">Closes in</SizableText>
+            <SizableText size="$2" color={days <= 3 ? '#ef4444' : '#fbbf24'} fontWeight="700">
               {days} day{days !== 1 ? 's' : ''}
             </SizableText>
           </YStack>
           <YStack alignItems="flex-end">
-            <SizableText size="$1" color="#8B9AB1">Per unit</SizableText>
+            <SizableText size="$1" color="#94a3b8">Per unit</SizableText>
             <SizableText size="$2" color="#FFFFFF" fontWeight="700">Rs. {issue.pricePerUnit}</SizableText>
           </YStack>
         </XStack>
 
         <Button
           size="$3"
-          backgroundColor="#FFD700"
-          color="#0A0E1A"
+          backgroundColor="#fbbf24"
+          color="#0f172a"
           fontWeight="800"
           borderRadius="$3"
           pressStyle={{ opacity: 0.8, scale: 0.97 }}
@@ -179,27 +180,27 @@ function MoverRow({ stock }: { stock: any }) {
       paddingHorizontal="$3"
       alignItems="center"
       justifyContent="space-between"
-      backgroundColor="#0D1221"
+      backgroundColor="#1e293b"
       borderRadius="$3"
       borderWidth={1}
-      borderColor="#1A2744"
+      borderColor="#334155"
     >
       <XStack alignItems="center" gap="$3" flex={1}>
         <YStack
           width={40}
           height={40}
           borderRadius="$3"
-          backgroundColor="#1A2744"
+          backgroundColor="#334155"
           alignItems="center"
           justifyContent="center"
         >
-          <SizableText size="$2" fontWeight="800" color="#FFD700">
+          <SizableText size="$2" fontWeight="800" color="#fbbf24">
             {stock.symbol.slice(0, 3)}
           </SizableText>
         </YStack>
         <YStack flex={1}>
           <SizableText size="$3" fontWeight="700" color="#FFFFFF">{stock.symbol}</SizableText>
-          <SizableText size="$1" color="#8B9AB1" numberOfLines={1}>{stock.companyName}</SizableText>
+          <SizableText size="$1" color="#94a3b8" numberOfLines={1}>{stock.companyName}</SizableText>
         </YStack>
       </XStack>
 
@@ -211,18 +212,18 @@ function MoverRow({ stock }: { stock: any }) {
           paddingHorizontal="$2"
           paddingVertical="$0.5"
           borderRadius="$10"
-          backgroundColor={isPositive ? '#22C55E20' : '#EF444420'}
+          backgroundColor={isPositive ? '#10b98120' : '#ef444420'}
           alignItems="center"
           gap="$1"
         >
           {isPositive
-            ? <TrendingUp size={10} color="#22C55E" />
-            : <TrendingDown size={10} color="#EF4444" />
+            ? <TrendingUp size={10} color="#10b981" />
+            : <TrendingDown size={10} color="#ef4444" />
           }
           <SizableText
             size="$1"
             fontWeight="700"
-            color={isPositive ? '#22C55E' : '#EF4444'}
+            color={isPositive ? '#10b981' : '#ef4444'}
           >
             {isPositive ? '+' : ''}{stock.changePercent?.toFixed(2)}%
           </SizableText>
@@ -234,7 +235,7 @@ function MoverRow({ stock }: { stock: any }) {
 
 // ─── Skeleton Loader ─────────────────────────────────────────────────────────
 
-function SkeletonBox({ width, height, borderRadius = 6 }: { width: number | string; height: number; borderRadius?: number }) {
+function SkeletonBox({ width, height, borderRadius = 6 }: { width: number | `${number}%`; height: number; borderRadius?: number }) {
   const opacity = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
@@ -254,7 +255,7 @@ function SkeletonBox({ width, height, borderRadius = 6 }: { width: number | stri
         width,
         height,
         borderRadius,
-        backgroundColor: '#1A2744',
+        backgroundColor: '#334155',
         opacity,
       }}
     />
@@ -297,11 +298,11 @@ export default function DashboardScreen() {
   }, []);
 
   const isMarketUp = (nepse?.change ?? 0) >= 0;
-  const changeColor = isMarketUp ? '#22C55E' : '#EF4444';
+  const changeColor = isMarketUp ? '#10b981' : '#ef4444';
   const changeSign = isMarketUp ? '+' : '';
 
   return (
-    <YStack flex={1} backgroundColor="#0A0E1A">
+    <YStack flex={1} backgroundColor="#0f172a">
       <ScrollView flex={1} showsVerticalScrollIndicator={false}>
         <YStack style={{ paddingTop: topPad }} paddingBottom="$8">
 
@@ -313,10 +314,10 @@ export default function DashboardScreen() {
             justifyContent="space-between"
           >
             <YStack>
-              <SizableText size="$6" fontWeight="900" color="#FFD700" letterSpacing={-0.5}>
-                IPO Nepal
+              <SizableText size="$6" fontWeight="900" color="#0ea5e9" letterSpacing={-0.5}>
+                📊 IPO Nepal
               </SizableText>
-              <SizableText size="$2" color="#8B9AB1" fontWeight="500">
+              <SizableText size="$2" color="#94a3b8" fontWeight="500">
                 NEPSE Investor Hub
               </SizableText>
             </YStack>
@@ -328,18 +329,18 @@ export default function DashboardScreen() {
               pressStyle={{ opacity: 0.7 }}
               onPress={() => {}}
             >
-              <Bell size={22} color="#8B9AB1" />
+              <Bell size={22} color="#94a3b8" />
             </Button>
           </XStack>
 
           {/* ── NEPSE Index Card ── */}
           <YStack paddingHorizontal="$4" marginBottom="$4">
             <Card
-              backgroundColor="#1A2744"
+              backgroundColor="#1e293b"
               borderRadius="$5"
               padding="$5"
               borderWidth={1}
-              borderColor="#2A3A5C"
+              borderColor="#334155"
               elevation={4}
             >
               {isMarketLoading ? (
@@ -352,12 +353,12 @@ export default function DashboardScreen() {
                 <YStack gap="$3">
                   {/* Label + Live */}
                   <XStack alignItems="center" justifyContent="space-between">
-                    <SizableText size="$2" color="#8B9AB1" fontWeight="600" letterSpacing={1}>
+                    <SizableText size="$2" color="#94a3b8" fontWeight="600" letterSpacing={1}>
                       NEPSE INDEX
                     </SizableText>
                     <XStack alignItems="center" gap="$2">
                       <LiveDot />
-                      <SizableText size="$1" color="#22C55E" fontWeight="700">LIVE</SizableText>
+                      <SizableText size="$1" color="#10b981" fontWeight="700">LIVE</SizableText>
                     </XStack>
                   </XStack>
 
@@ -376,7 +377,7 @@ export default function DashboardScreen() {
                       paddingHorizontal="$3"
                       paddingVertical="$1"
                       borderRadius="$10"
-                      backgroundColor={isMarketUp ? '#22C55E20' : '#EF444420'}
+                      backgroundColor={isMarketUp ? '#10b98120' : '#ef444420'}
                       alignItems="center"
                       gap="$2"
                     >
@@ -393,24 +394,24 @@ export default function DashboardScreen() {
                     </XStack>
                   </XStack>
 
-                  <Separator borderColor="#2A3A5C" />
+                  <Separator borderColor="#475569" />
 
                   {/* Sub stats */}
                   <XStack justifyContent="space-between" alignItems="center">
                     <YStack>
-                      <SizableText size="$1" color="#8B9AB1">Turnover</SizableText>
+                      <SizableText size="$1" color="#94a3b8">Turnover</SizableText>
                       <SizableText size="$2" color="#FFFFFF" fontWeight="700">
                         {nepse ? `Rs. ${formatNumber(nepse.turnover)}` : '—'}
                       </SizableText>
                     </YStack>
                     <YStack alignItems="center">
-                      <SizableText size="$1" color="#8B9AB1">High</SizableText>
-                      <SizableText size="$2" color="#22C55E" fontWeight="700">
+                      <SizableText size="$1" color="#94a3b8">High</SizableText>
+                      <SizableText size="$2" color="#10b981" fontWeight="700">
                         {nepse ? nepse.high.toFixed(2) : '—'}
                       </SizableText>
                     </YStack>
                     <YStack alignItems="flex-end">
-                      <SizableText size="$1" color="#8B9AB1">Updated</SizableText>
+                      <SizableText size="$1" color="#94a3b8">Updated</SizableText>
                       <SizableText size="$2" color="#FFFFFF" fontWeight="700">
                         {formatTime(lastUpdated)}
                       </SizableText>
@@ -426,11 +427,11 @@ export default function DashboardScreen() {
             {/* Accounts */}
             <Card
               flex={1}
-              backgroundColor="#0D1221"
+              backgroundColor="#1e293b"
               borderRadius="$4"
               padding="$3"
               borderWidth={1}
-              borderColor="#1A2744"
+              borderColor="#334155"
               elevation={4}
               pressStyle={{ opacity: 0.85 }}
               onPress={() => router.push('/(tabs)/settings')}
@@ -440,27 +441,27 @@ export default function DashboardScreen() {
                   width={36}
                   height={36}
                   borderRadius="$3"
-                  backgroundColor="#1A2744"
+                  backgroundColor="#0ea5e920"
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Users size={18} color="#FFD700" />
+                  <Users size={18} color="#0ea5e9" />
                 </YStack>
                 <SizableText size="$5" fontWeight="900" color="#FFFFFF">
                   {accounts.length}
                 </SizableText>
-                <SizableText size="$1" color="#8B9AB1" textAlign="center">Accounts</SizableText>
+                <SizableText size="$1" color="#94a3b8" textAlign="center">Accounts</SizableText>
               </YStack>
             </Card>
 
             {/* Active IPOs */}
             <Card
               flex={1}
-              backgroundColor="#0D1221"
+              backgroundColor="#1e293b"
               borderRadius="$4"
               padding="$3"
               borderWidth={1}
-              borderColor="#1A2744"
+              borderColor="#334155"
               elevation={4}
               pressStyle={{ opacity: 0.85 }}
               onPress={() => router.push('/(tabs)/ipo')}
@@ -470,27 +471,27 @@ export default function DashboardScreen() {
                   width={36}
                   height={36}
                   borderRadius="$3"
-                  backgroundColor="#1A2744"
+                  backgroundColor="#10b98120"
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Layers size={18} color="#22C55E" />
+                  <Layers size={18} color="#10b981" />
                 </YStack>
                 <SizableText size="$5" fontWeight="900" color="#FFFFFF">
                   {openIssues.length}
                 </SizableText>
-                <SizableText size="$1" color="#8B9AB1" textAlign="center">Active IPOs</SizableText>
+                <SizableText size="$1" color="#94a3b8" textAlign="center">Active IPOs</SizableText>
               </YStack>
             </Card>
 
             {/* Portfolio */}
             <Card
               flex={1}
-              backgroundColor="#0D1221"
+              backgroundColor="#1e293b"
               borderRadius="$4"
               padding="$3"
               borderWidth={1}
-              borderColor="#1A2744"
+              borderColor="#334155"
               elevation={4}
               pressStyle={{ opacity: 0.85 }}
               onPress={() => router.push('/(tabs)/portfolio')}
@@ -500,14 +501,14 @@ export default function DashboardScreen() {
                   width={36}
                   height={36}
                   borderRadius="$3"
-                  backgroundColor="#1A2744"
+                  backgroundColor="#1e3a8a20"
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <DollarSign size={18} color="#3B82F6" />
+                  <DollarSign size={18} color="#1e3a8a" />
                 </YStack>
                 <SizableText size="$3" fontWeight="900" color="#FFFFFF">Rs.0</SizableText>
-                <SizableText size="$1" color="#8B9AB1" textAlign="center">Portfolio</SizableText>
+                <SizableText size="$1" color="#94a3b8" textAlign="center">Portfolio</SizableText>
               </YStack>
             </Card>
           </XStack>
@@ -521,8 +522,8 @@ export default function DashboardScreen() {
               marginBottom="$3"
             >
               <XStack alignItems="center" gap="$2">
-                <Zap size={16} color="#FFD700" />
-                <H3 color="#FFFFFF" fontWeight="800">Active IPOs</H3>
+                <Zap size={16} color="#fbbf24" />
+                <H3 color="#f1f5f9" fontWeight="800">Active IPOs</H3>
               </XStack>
               <Button
                 chromeless
@@ -531,8 +532,8 @@ export default function DashboardScreen() {
                 onPress={() => router.push('/(tabs)/ipo')}
               >
                 <XStack alignItems="center" gap="$1">
-                  <SizableText size="$2" color="#FFD700">View All</SizableText>
-                  <ChevronRight size={14} color="#FFD700" />
+                  <SizableText size="$2" color="#0ea5e9">View All</SizableText>
+                  <ChevronRight size={14} color="#0ea5e9" />
                 </XStack>
               </Button>
             </XStack>
@@ -541,15 +542,15 @@ export default function DashboardScreen() {
               <YStack
                 marginHorizontal="$4"
                 padding="$6"
-                backgroundColor="#0D1221"
+                backgroundColor="#1e293b"
                 borderRadius="$4"
                 borderWidth={1}
-                borderColor="#1A2744"
+                borderColor="#334155"
                 alignItems="center"
                 gap="$2"
               >
-                <TrendingUp size={32} color="#8B9AB1" />
-                <SizableText size="$3" color="#8B9AB1" textAlign="center">
+                <TrendingUp size={32} color="#94a3b8" />
+                <SizableText size="$3" color="#94a3b8" textAlign="center">
                   No active IPOs right now
                 </SizableText>
               </YStack>
@@ -575,8 +576,8 @@ export default function DashboardScreen() {
           <YStack paddingHorizontal="$4" marginBottom="$5">
             <XStack alignItems="center" justifyContent="space-between" marginBottom="$3">
               <XStack alignItems="center" gap="$2">
-                <TrendingUp size={16} color="#22C55E" />
-                <H3 color="#FFFFFF" fontWeight="800">Top Gainers Today</H3>
+                <TrendingUp size={16} color="#10b981" />
+                <H3 color="#f1f5f9" fontWeight="800">Top Gainers Today</H3>
               </XStack>
               <Button
                 chromeless
@@ -585,8 +586,8 @@ export default function DashboardScreen() {
                 onPress={() => router.push('/(tabs)/market')}
               >
                 <XStack alignItems="center" gap="$1">
-                  <SizableText size="$2" color="#FFD700">See more</SizableText>
-                  <ChevronRight size={14} color="#FFD700" />
+                  <SizableText size="$2" color="#0ea5e9">See more</SizableText>
+                  <ChevronRight size={14} color="#0ea5e9" />
                 </XStack>
               </Button>
             </XStack>
@@ -610,8 +611,8 @@ export default function DashboardScreen() {
           <YStack paddingHorizontal="$4" marginBottom="$4">
             <XStack alignItems="center" justifyContent="space-between" marginBottom="$3">
               <XStack alignItems="center" gap="$2">
-                <Users size={16} color="#FFD700" />
-                <H3 color="#FFFFFF" fontWeight="800">My Accounts</H3>
+                <Users size={16} color="#0ea5e9" />
+                <H3 color="#f1f5f9" fontWeight="800">My Accounts</H3>
               </XStack>
               <Button
                 chromeless
@@ -620,19 +621,19 @@ export default function DashboardScreen() {
                 onPress={() => router.push('/(tabs)/settings')}
               >
                 <XStack alignItems="center" gap="$1">
-                  <SizableText size="$2" color="#FFD700">Manage</SizableText>
-                  <ChevronRight size={14} color="#FFD700" />
+                  <SizableText size="$2" color="#0ea5e9">Manage</SizableText>
+                  <ChevronRight size={14} color="#0ea5e9" />
                 </XStack>
               </Button>
             </XStack>
 
             {accounts.length === 0 ? (
               <Card
-                backgroundColor="#0D1221"
+                backgroundColor="#1e293b"
                 borderRadius="$4"
                 padding="$5"
                 borderWidth={1}
-                borderColor="#1A2744"
+                borderColor="#334155"
                 elevation={4}
               >
                 <YStack alignItems="center" gap="$3">
@@ -640,29 +641,29 @@ export default function DashboardScreen() {
                     width={56}
                     height={56}
                     borderRadius="$10"
-                    backgroundColor="#1A2744"
+                    backgroundColor="#334155"
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Users size={28} color="#8B9AB1" />
+                    <Users size={28} color="#94a3b8" />
                   </YStack>
                   <YStack alignItems="center" gap="$1">
                     <SizableText size="$4" fontWeight="700" color="#FFFFFF" textAlign="center">
                       No accounts added yet
                     </SizableText>
-                    <Paragraph size="$2" color="#8B9AB1" textAlign="center">
+                    <Paragraph size="$2" color="#94a3b8" textAlign="center">
                       Add your first MeroShare account to start applying for IPOs
                     </Paragraph>
                   </YStack>
                   <Button
                     size="$4"
-                    backgroundColor="#FFD700"
-                    color="#0A0E1A"
+                    backgroundColor="#fbbf24"
+                    color="#0f172a"
                     fontWeight="800"
                     borderRadius="$3"
                     pressStyle={{ opacity: 0.8 }}
                     onPress={() => router.push('/(tabs)/settings')}
-                    iconAfter={<Plus size={16} color="#0A0E1A" />}
+                    iconAfter={<Plus size={16} color="#0f172a" />}
                   >
                     Add Account
                   </Button>
@@ -673,11 +674,11 @@ export default function DashboardScreen() {
                 {accounts.slice(0, 3).map((acc) => (
                   <Card
                     key={acc.id}
-                    backgroundColor="#0D1221"
+                    backgroundColor="#1e293b"
                     borderRadius="$4"
                     padding="$4"
                     borderWidth={1}
-                    borderColor="#1A2744"
+                    borderColor="#334155"
                     elevation={4}
                     pressStyle={{ opacity: 0.85 }}
                   >
@@ -686,11 +687,11 @@ export default function DashboardScreen() {
                         width={44}
                         height={44}
                         borderRadius="$10"
-                        backgroundColor="#1A2744"
+                        backgroundColor="#334155"
                         alignItems="center"
                         justifyContent="center"
                       >
-                        <SizableText size="$4" fontWeight="900" color="#FFD700">
+                        <SizableText size="$4" fontWeight="900" color="#fbbf24">
                           {acc.nickname?.charAt(0)?.toUpperCase() ?? 'A'}
                         </SizableText>
                       </YStack>
@@ -698,17 +699,17 @@ export default function DashboardScreen() {
                         <SizableText size="$3" fontWeight="700" color="#FFFFFF">
                           {acc.nickname}
                         </SizableText>
-                        <SizableText size="$2" color="#8B9AB1">
-                          DP: {'*'.repeat(7)}{acc.dpId?.slice(-4) ?? '****'}
+                        <SizableText size="$2" color="#94a3b8">
+                          DP: {maskDpId(acc.dpId)}
                         </SizableText>
                       </YStack>
                       <YStack
                         paddingHorizontal="$2"
                         paddingVertical="$1"
                         borderRadius="$10"
-                        backgroundColor={acc.isActive ? '#22C55E20' : '#8B9AB120'}
+                        backgroundColor={acc.isActive ? '#10b98120' : '#94a3b820'}
                       >
-                        <SizableText size="$1" color={acc.isActive ? '#22C55E' : '#8B9AB1'} fontWeight="700">
+                        <SizableText size="$1" color={acc.isActive ? '#10b981' : '#94a3b8'} fontWeight="700">
                           {acc.isActive ? 'Active' : 'Inactive'}
                         </SizableText>
                       </YStack>
@@ -721,7 +722,7 @@ export default function DashboardScreen() {
                     chromeless
                     onPress={() => router.push('/(tabs)/settings')}
                   >
-                    <SizableText size="$2" color="#8B9AB1">
+                    <SizableText size="$2" color="#94a3b8">
                       +{accounts.length - 3} more accounts
                     </SizableText>
                   </Button>

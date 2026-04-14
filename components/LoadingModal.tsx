@@ -77,17 +77,17 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
           gap="$4"
         >
           <YStack
-            backgroundColor="#0D1221"
+            backgroundColor="#1e293b"
             borderRadius={16}
             borderWidth={1}
-            borderColor="#2D3B55"
+            borderColor="#475569"
             padding="$6"
             alignItems="center"
             gap="$4"
             style={styles.card}
           >
-            <ActivityIndicator size="large" color="#FFD700" />
-            <SizableText size="$3" color="#8B9AB1" fontWeight="600">
+            <ActivityIndicator size="large" color="#0ea5e9" />
+            <SizableText size="$3" color="#94a3b8" fontWeight="600">
               {message}
             </SizableText>
           </YStack>

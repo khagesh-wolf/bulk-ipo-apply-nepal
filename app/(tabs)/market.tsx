@@ -29,13 +29,13 @@ import { useShallow } from 'zustand/react/shallow';
 import { useMarketStore } from '@/store';
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
-const BG      = '#0A0E1A';
-const CARD_BG = '#0D1221';
-const SURFACE = '#1A2744';
-const GOLD    = '#FFD700';
-const POSITIVE = '#22C55E';
-const NEGATIVE  = '#EF4444';
-const MUTED   = '#8B9AB1';
+const BG      = '#0f172a';
+const CARD_BG = '#1e293b';
+const SURFACE = '#334155';
+const GOLD    = '#fbbf24';
+const POSITIVE = '#10b981';
+const NEGATIVE  = '#ef4444';
+const MUTED   = '#94a3b8';
 
 // ─── Market open detection ─────────────────────────────────────────────────
 function isMarketOpen(): boolean {
@@ -533,7 +533,7 @@ export default function MarketScreen() {
               <Button
                 size="$3"
                 backgroundColor={GOLD}
-                color="#0A0E1A"
+                color="#0f172a"
                 fontWeight="700"
                 borderRadius="$3"
                 marginTop="$3"

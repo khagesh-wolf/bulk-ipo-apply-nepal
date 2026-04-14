@@ -79,3 +79,5 @@ export { getAvailableResults, checkAllotmentResult, bulkCheckResults } from '@/s
 export { bulkApply } from '@/src/services/BulkIPOService';
 export * as AccountService from '@/src/services/AccountService';
 export * as SyncService from '@/src/services/SyncService';
+
+export { maskDpId } from './utils';

@@ -201,6 +201,17 @@ export interface BulkApplyResult {
   errorMessage?: string;
 }
 
+/**
+ * Result of checking IPO allotment for a single account.
+ */
+export interface BulkCheckResult {
+  accountId: string;
+  accountNickname: string;
+  status: 'allotted' | 'not_allotted' | 'pending' | 'error';
+  allottedUnits: number;
+  message: string;
+}
+
 // ============================================================================
 // NEWS & ANNOUNCEMENTS (Phase 4)
 // ============================================================================

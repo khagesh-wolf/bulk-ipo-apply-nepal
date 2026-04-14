@@ -64,19 +64,29 @@ function mapStatusLabel(isOpen: boolean, closeDate: string): IssueStatus {
 }
 
 function mapRawIssue(raw: MeroShareApplicableIssueRaw): IPOIssue {
+  let openDate = raw.issueOpenDate ?? raw.openDate;
+  let closeDate = raw.issueCloseDate ?? raw.closeDate;
+
+  // Safety: ensure open date is before close date.
+  // MeroShare's API has occasionally returned the issueOpenDate/issueCloseDate fields
+  // in reversed order — this is a permanent defensive fix for that API quirk.
+  if (openDate && closeDate && new Date(openDate).getTime() > new Date(closeDate).getTime()) {
+    [openDate, closeDate] = [closeDate, openDate];
+  }
+
   return {
     id: String(raw.id),
     companyName: raw.companyName,
     symbol: raw.scrip,
     shareType: mapShareType(raw.shareTypeName ?? raw.shareGroupName ?? ''),
-    openDate: raw.issueOpenDate ?? raw.openDate,
-    closeDate: raw.issueCloseDate ?? raw.closeDate,
+    openDate,
+    closeDate,
     pricePerUnit: raw.sharePerUnit ?? 100,
     minUnit: raw.minUnit,
     maxUnit: raw.maxUnit,
     totalUnits: 0, // not returned in list endpoint
     isOpen: raw.isOpen,
-    statusLabel: mapStatusLabel(raw.isOpen, raw.issueCloseDate ?? raw.closeDate),
+    statusLabel: mapStatusLabel(raw.isOpen, closeDate),
     subIssueId: String(raw.subGroup),
     companyShareId: String(raw.companyShareId),
   };
@@ -151,10 +161,18 @@ export class MeroShareApiClient {
     });
 
     // MeroShare returns the JWT token directly in the response body.
-    const raw = response.data;
+    const raw: unknown = response.data;
     let token = '';
     if (typeof raw === 'string' && raw.length > 0) {
-      token = raw.trim();
+      const candidate = raw.trim();
+      // Format validation only — checks for three dot-separated base64url segments
+      // (header.payload.signature). This validates structure only; it does NOT validate
+      // base64url character compliance or cryptographic integrity.
+      if (/^[\w-]+\.[\w-]+\.[\w-]+$/.test(candidate)) {
+        token = candidate;
+      } else if (__DEV__) {
+        console.warn('[MeroShareApi] Response body looks like a string but failed JWT format check — falling back to header/object extraction.');
+      }
     } else if (raw && typeof raw === 'object') {
       const body = raw as Record<string, unknown>;
       token = String(body.token ?? body.accessToken ?? '').trim();

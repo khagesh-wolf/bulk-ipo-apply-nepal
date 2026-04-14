@@ -38,16 +38,18 @@ import { useConfirmation } from '@/components/ConfirmationModal';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg: '#0A0E1A',
-  card: '#0D1221',
-  surface: '#1A2744',
-  border: '#2D3B55',
-  gold: '#FFD700',
-  positive: '#22C55E',
-  negative: '#EF4444',
-  muted: '#8B9AB1',
-  white: '#FFFFFF',
-  text: '#E2E8F0',
+  bg: '#0f172a',
+  card: '#1e293b',
+  surface: '#334155',
+  border: '#475569',
+  gold: '#fbbf24',
+  positive: '#10b981',
+  negative: '#ef4444',
+  muted: '#94a3b8',
+  white: '#f1f5f9',
+  text: '#e2e8f0',
+  primary: '#1e3a8a',
+  accent: '#0ea5e9',
 };
 
 const topPad = Platform.OS === 'ios' ? 54 : Platform.OS === 'android' ? 34 : 24;
@@ -98,7 +100,7 @@ function AccountAvatar({ nickname }: { nickname: string }) {
       alignItems="center"
       justifyContent="center"
     >
-      <SizableText size="$4" fontWeight="800" color="#0A0E1A">
+      <SizableText size="$4" fontWeight="800" color="#0f172a">
         {initials}
       </SizableText>
     </YStack>
@@ -332,7 +334,7 @@ export default function SettingsScreen() {
         <SizableText size="$7" fontWeight="800" color={C.white}>
           Settings
         </SizableText>
-        <SizableText size="$2" color={C.gold} marginTop="$1">
+        <SizableText size="$2" color={C.accent} marginTop="$1">
           v1.0.0
         </SizableText>
       </YStack>
@@ -411,8 +413,8 @@ export default function SettingsScreen() {
               }}
               activeOpacity={0.8}
             >
-              <Plus size={16} color="#0A0E1A" />
-              <SizableText size="$3" fontWeight="800" color="#0A0E1A">
+              <Plus size={16} color="#0f172a" />
+              <SizableText size="$3" fontWeight="800" color="#0f172a">
                 Add Account
               </SizableText>
             </TouchableOpacity>

@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand';
-import type { IPOIssue, IPOApplication, BulkApplyResult } from '@/types';
+import type { IPOIssue, IPOApplication, BulkApplyResult, BulkCheckResult } from '@/types';
 import { meroshareApi } from '@/lib/meroshareApi';
 import { useAccountStore } from './accountStore';
 import { generateId } from '@/lib/secureStore';
@@ -20,8 +20,10 @@ interface IPOStore {
   applications: IPOApplication[];
   isApplying: boolean;
   isLoadingIssues: boolean;
+  isCheckingResults: boolean;
   error: string | null;
   lastBulkResults: BulkApplyResult[];
+  lastCheckResults: BulkCheckResult[];
 
   /** Fetch live issues from MeroShare. */
   fetchActiveIssues: () => Promise<void>;
@@ -41,6 +43,12 @@ interface IPOStore {
    * Updates status to ALLOTTED / NOT_ALLOTTED as appropriate.
    */
   checkResults: () => Promise<void>;
+
+  /**
+   * Bulk check IPO allotment results for selected accounts.
+   * Checks each account's allotment by building BOID and querying CDSC.
+   */
+  bulkCheckResults: (accountIds: string[]) => Promise<BulkCheckResult[]>;
 
   /** Clear error state. */
   clearError: () => void;
@@ -68,8 +76,10 @@ export const useIPOStore = create<IPOStore>((set, get) => ({
   applications: [],
   isApplying: false,
   isLoadingIssues: false,
+  isCheckingResults: false,
   error: null,
   lastBulkResults: [],
+  lastCheckResults: [],
 
   fetchActiveIssues: async () => {
     set({ isLoadingIssues: true, error: null });
@@ -196,6 +206,70 @@ export const useIPOStore = create<IPOStore>((set, get) => ({
     }
 
     set({ applications: updatedApplications });
+  },
+
+  bulkCheckResults: async (accountIds) => {
+    set({ isCheckingResults: true, error: null, lastCheckResults: [] });
+
+    const { accounts } = useAccountStore.getState();
+    const selectedAccounts = accounts.filter(
+      (a) => accountIds.includes(a.id) && a.isActive,
+    );
+
+    if (!selectedAccounts.length) {
+      set({ isCheckingResults: false, error: 'No active accounts selected.' });
+      return [];
+    }
+
+    const results: BulkCheckResult[] = [];
+
+    for (const account of selectedAccounts) {
+      try {
+        const boid = buildBoid(account.dpId, account.crn);
+        const result = await meroshareApi.checkAllotmentResult(boid);
+
+        results.push({
+          accountId: account.id,
+          accountNickname: account.nickname,
+          status: result.isAllotted ? 'allotted' : 'not_allotted',
+          allottedUnits: result.allottedUnits,
+          message: result.message,
+        });
+      } catch (err) {
+        console.error('[bulkCheckResults] allotment check failed for account', account.id, err);
+        results.push({
+          accountId: account.id,
+          accountNickname: account.nickname,
+          status: 'error',
+          allottedUnits: 0,
+          message: 'Failed to check allotment.',
+        });
+      }
+    }
+
+    // Update matching application records with allotment info
+    const { applications } = get();
+    const updatedApps = applications.map((app) => {
+      const checkResult = results.find((r) => r.accountId === app.accountId);
+      if (checkResult && app.status === 'APPLIED') {
+        if (checkResult.status === 'allotted') {
+          return { ...app, status: 'ALLOTTED' as const, allottedUnits: checkResult.allottedUnits };
+        }
+        if (checkResult.status === 'not_allotted') {
+          return { ...app, status: 'NOT_ALLOTTED' as const, allottedUnits: 0 };
+        }
+        // For 'error' or 'pending', preserve APPLIED status — result is not yet definitive
+      }
+      return app;
+    });
+
+    set({
+      isCheckingResults: false,
+      lastCheckResults: results,
+      applications: updatedApps,
+    });
+
+    return results;
   },
 
   clearError: () => set({ error: null }),
