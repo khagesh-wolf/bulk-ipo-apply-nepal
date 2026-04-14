@@ -364,7 +364,7 @@ export default function DashboardScreen() {
                     fontWeight="900"
                     style={{ fontSize: 40, lineHeight: 44, letterSpacing: -1 }}
                   >
-                    {(nepse?.currentValue ?? 2847.16).toLocaleString('en-NP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {nepse ? nepse.currentValue.toLocaleString('en-NP', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}
                   </H2>
 
                   {/* Change row */}
@@ -382,10 +382,10 @@ export default function DashboardScreen() {
                         : <TrendingDown size={14} color={changeColor} />
                       }
                       <SizableText size="$3" fontWeight="800" color={changeColor}>
-                        {changeSign}{(nepse?.change ?? 18.42).toFixed(2)}
+                        {changeSign}{(nepse?.change ?? 0).toFixed(2)}
                       </SizableText>
                       <SizableText size="$2" fontWeight="700" color={changeColor}>
-                        ({changeSign}{(nepse?.changePercent ?? 0.65).toFixed(2)}%)
+                        ({changeSign}{(nepse?.changePercent ?? 0).toFixed(2)}%)
                       </SizableText>
                     </XStack>
                   </XStack>
@@ -397,13 +397,13 @@ export default function DashboardScreen() {
                     <YStack>
                       <SizableText size="$1" color="#8B9AB1">Turnover</SizableText>
                       <SizableText size="$2" color="#FFFFFF" fontWeight="700">
-                        Rs. {formatNumber((nepse?.turnover ?? 4.82) * 1_00_00_000)} 
+                        {nepse ? `Rs. ${formatNumber(nepse.turnover)}` : '—'}
                       </SizableText>
                     </YStack>
                     <YStack alignItems="center">
                       <SizableText size="$1" color="#8B9AB1">High</SizableText>
                       <SizableText size="$2" color="#22C55E" fontWeight="700">
-                        {(nepse?.high ?? 2855.0).toFixed(2)}
+                        {nepse ? nepse.high.toFixed(2) : '—'}
                       </SizableText>
                     </YStack>
                     <YStack alignItems="flex-end">

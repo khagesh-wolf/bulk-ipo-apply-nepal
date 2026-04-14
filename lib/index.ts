@@ -20,11 +20,6 @@ export {
   getNEPSEIndex,
   getMarketMovers,
   getStockPrice,
-  MOCK_NEPSE_INDEX,
-  MOCK_SUB_INDICES,
-  MOCK_TOP_GAINERS,
-  MOCK_TOP_LOSERS,
-  MOCK_HIGHEST_TURNOVER,
 } from './nepseApi';
 
 // Calculator utilities
@@ -36,7 +31,11 @@ export type { CGTType, CapitalGainsTaxResult } from './calculator';
 // ---------------------------------------------------------------------------
 
 // News aggregation
-export { fetchNews, filterNewsByCategory, categorizeNews, MOCK_NEWS } from './newsApi';
+export { fetchNews, filterNewsByCategory, categorizeNews } from './newsApi';
+
+// DP (Depository Participant) service
+export { fetchDPList, searchDPList } from './dpService';
+export type { DPEntity } from './dpService';
 
 // Floorsheet & market summary
 export { getFloorsheet, getMarketSummary, MOCK_FLOORSHEET, MOCK_MARKET_SUMMARY } from './floorsheetApi';

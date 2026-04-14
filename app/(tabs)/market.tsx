@@ -23,7 +23,6 @@ import {
   RefreshCw,
   ArrowUpRight,
   ArrowDownRight,
-  ChevronRight,
   Activity,
 } from '@blinkdotnew/mobile-ui';
 import { useShallow } from 'zustand/react/shallow';
@@ -52,22 +51,7 @@ function isMarketOpen(): boolean {
 }
 
 // ─── Static mock data ─────────────────────────────────────────────────────────
-const SUB_INDICES = [
-  { name: 'Banking',        value: '1,598.42', change: +0.45 },
-  { name: 'Hydropower',     value: '2,156.78', change: -0.32 },
-  { name: 'Insurance',      value: '8,234.56', change: +1.12 },
-  { name: 'Manufacturing',  value: '3,456.89', change: +0.89 },
-  { name: 'Microfinance',   value: '1,876.43', change: -0.54 },
-  { name: 'Dev. Bank',      value: '1,234.56', change: +0.23 },
-];
-
-const TOP_BROKERS = [
-  { rank: 1,  name: 'Sunrise Capital',       code: 'SCBL', vol: 'Rs. 45.2M' },
-  { rank: 8,  name: 'Global IME Capital',    code: 'GIME', vol: 'Rs. 38.7M' },
-  { rank: 12, name: 'NMB Capital',           code: 'NMBC', vol: 'Rs. 31.4M' },
-  { rank: 50, name: 'Nabil Investment Bank', code: 'NIBL', vol: 'Rs. 28.9M' },
-  { rank: 24, name: 'Siddhartha Capital',    code: 'SDCA', vol: 'Rs. 24.1M' },
-];
+// (removed — now using real store data)
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmtNum(n: number) {
@@ -105,8 +89,9 @@ function SectionTitle({
   );
 }
 
-function SubIndexChip({ item }: { item: typeof SUB_INDICES[0] }) {
-  const up = item.change >= 0;
+function SubIndexChip({ item }: { item: { indexName: string; currentValue: number; changePercent: number } }) {
+  const up = item.changePercent >= 0;
+  const shortName = item.indexName.replace(' Sub-Index', '').replace(' Sub Index', '');
   return (
     <YStack
       backgroundColor={CARD_BG}
@@ -119,17 +104,17 @@ function SubIndexChip({ item }: { item: typeof SUB_INDICES[0] }) {
       minWidth={120}
     >
       <SizableText size="$2" color={MUTED} marginBottom="$0.5">
-        {item.name}
+        {shortName}
       </SizableText>
       <SizableText size="$4" fontWeight="800" color="white" marginBottom="$0.5">
-        {item.value}
+        {fmtNum(item.currentValue)}
       </SizableText>
       <XStack alignItems="center" gap="$0.5">
         {up
           ? <ArrowUpRight size={12} color={POSITIVE} />
           : <ArrowDownRight size={12} color={NEGATIVE} />}
         <SizableText size="$2" color={up ? POSITIVE : NEGATIVE} fontWeight="700">
-          {up ? '+' : ''}{item.change.toFixed(2)}%
+          {up ? '+' : ''}{item.changePercent.toFixed(2)}%
         </SizableText>
       </XStack>
     </YStack>
@@ -260,54 +245,12 @@ function StockRow({
   );
 }
 
-function BrokerRow({ broker }: { broker: typeof TOP_BROKERS[0] }) {
-  return (
-    <XStack
-      alignItems="center"
-      justifyContent="space-between"
-      paddingVertical="$3"
-      borderBottomWidth={1}
-      borderBottomColor={SURFACE}
-    >
-      <XStack alignItems="center" gap="$3" flex={1}>
-        <XStack
-          width={34}
-          height={34}
-          borderRadius="$3"
-          backgroundColor={SURFACE}
-          alignItems="center"
-          justifyContent="center"
-          borderWidth={1}
-          borderColor={GOLD + '44'}
-        >
-          <SizableText size="$2" fontWeight="800" color={GOLD}>
-            #{broker.rank}
-          </SizableText>
-        </XStack>
-        <YStack flex={1}>
-          <SizableText size="$3" fontWeight="700" color="white">{broker.name}</SizableText>
-          <SizableText size="$2" color={MUTED}>Today Vol: {broker.vol}</SizableText>
-        </YStack>
-      </XStack>
-      <XStack
-        backgroundColor={SURFACE}
-        paddingHorizontal="$2.5"
-        paddingVertical="$1.5"
-        borderRadius="$3"
-        borderWidth={1}
-        borderColor={GOLD + '33'}
-      >
-        <SizableText size="$2" color={GOLD} fontWeight="600">TMS</SizableText>
-      </XStack>
-    </XStack>
-  );
-}
-
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function MarketScreen() {
   const {
     nepseIndex,
+    subIndices,
     topGainers,
     topLosers,
     highestTurnover,
@@ -315,6 +258,7 @@ export default function MarketScreen() {
   } = useMarketStore(
     useShallow((s) => ({
       nepseIndex: s.nepseIndex,
+      subIndices: s.subIndices,
       topGainers: s.topGainers,
       topLosers: s.topLosers,
       highestTurnover: s.highestTurnover,
@@ -480,17 +424,33 @@ export default function MarketScreen() {
 
           {/* ── Sub-Indices ── */}
           <SectionTitle>Sub-Indices</SectionTitle>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={{ marginBottom: 20 }}
-          >
-            <XStack paddingBottom="$1">
-              {SUB_INDICES.map((idx) => (
-                <SubIndexChip key={idx.name} item={idx} />
-              ))}
-            </XStack>
-          </ScrollView>
+          {subIndices.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginBottom: 20 }}
+            >
+              <XStack paddingBottom="$1">
+                {subIndices.map((idx) => (
+                  <SubIndexChip key={idx.indexName} item={idx} />
+                ))}
+              </XStack>
+            </ScrollView>
+          ) : (
+            <YStack
+              backgroundColor={CARD_BG}
+              borderColor={SURFACE}
+              borderWidth={1}
+              borderRadius="$4"
+              paddingVertical="$4"
+              alignItems="center"
+              marginBottom={20}
+            >
+              <SizableText size="$3" color={MUTED}>
+                {isLoading ? 'Loading sub-indices...' : 'No sub-index data available'}
+              </SizableText>
+            </YStack>
+          )}
 
           {/* ── Search Bar ── */}
           <XStack
@@ -555,31 +515,34 @@ export default function MarketScreen() {
             )}
           </Card>
 
-          {/* ── Top Brokers ── */}
-          <SectionTitle
-            right={
-              <XStack alignItems="center" gap="$0.5">
-                <SizableText size="$3" color={GOLD} fontWeight="600">View All</SizableText>
-                <ChevronRight size={14} color={GOLD} />
-              </XStack>
-            }
-          >
-            Top Brokers
-          </SectionTitle>
-          <Card
-            backgroundColor={CARD_BG}
-            borderColor={SURFACE}
-            borderWidth={1}
-            borderRadius="$4"
-            paddingHorizontal="$4"
-            paddingTop="$2"
-            paddingBottom="$2"
-            marginBottom="$8"
-          >
-            {TOP_BROKERS.map((b) => (
-              <BrokerRow key={b.rank} broker={b} />
-            ))}
-          </Card>
+          {/* ── Market data empty state ── */}
+          {topGainers.length === 0 && topLosers.length === 0 && !isLoading && (
+            <YStack
+              backgroundColor={CARD_BG}
+              borderColor={SURFACE}
+              borderWidth={1}
+              borderRadius="$4"
+              padding="$6"
+              alignItems="center"
+              marginBottom="$5"
+            >
+              <Activity size={32} color={MUTED} />
+              <SizableText size="$4" color={MUTED} marginTop="$2" textAlign="center">
+                Market data will appear here once loaded
+              </SizableText>
+              <Button
+                size="$3"
+                backgroundColor={GOLD}
+                color="#0A0E1A"
+                fontWeight="700"
+                borderRadius="$3"
+                marginTop="$3"
+                onPress={handleRefresh}
+              >
+                Refresh Data
+              </Button>
+            </YStack>
+          )}
 
         </YStack>
       </ScrollView>

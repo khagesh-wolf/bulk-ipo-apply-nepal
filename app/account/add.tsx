@@ -1,14 +1,17 @@
 /**
  * Add MeroShare Account Screen — Bulk IPO Apply Nepal
- * Full form to add a new DP account with secure local storage
+ * Full form to add a new DP account with searchable DP dropdown,
+ * proper validation, test login, and secure local storage.
  */
-import { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Alert,
   Platform,
   ScrollView,
   TextInput,
   TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import {
@@ -22,14 +25,17 @@ import {
   Eye,
   EyeOff,
   Lock,
-  Building2,
   User,
   Hash,
   CreditCard,
   Shield,
-  Info,
+  Search,
+  CheckCircle2,
+  ChevronDown,
 } from '@blinkdotnew/mobile-ui';
-import { useAccountStore } from '@/store';
+import { useAccountStore, useDPStore } from '@/store';
+import { meroshareApi } from '@/lib/meroshareApi';
+import type { DPEntity } from '@/lib/dpService';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -102,58 +108,158 @@ function FormField({
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function AddAccountScreen() {
   const { addAccount } = useAccountStore();
+  const { dpList, isLoading: dpLoading, fetchDPList, searchDP } = useDPStore();
 
+  // Form state
   const [nickname, setNickname] = useState('');
-  const [dpId, setDpId] = useState('');
+  const [selectedDP, setSelectedDP] = useState<DPEntity | null>(null);
+  const [dpSearch, setDpSearch] = useState('');
+  const [dpDropdownOpen, setDpDropdownOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [crn, setCrn] = useState('');
   const [pin, setPin] = useState('');
-  const [bankName, setBankName] = useState('');
-  const [bankId, setBankId] = useState('');
+  const [showPin, setShowPin] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
 
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Fetch DP list on mount
+  useEffect(() => {
+    fetchDPList();
+  }, [fetchDPList]);
+
+  // Filtered DP list for search
+  const filteredDPList = useMemo(() => {
+    return searchDP(dpSearch);
+  }, [dpSearch, searchDP, dpList]);
+
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!nickname.trim()) e.nickname = 'Nickname is required';
-    if (!dpId.trim()) e.dpId = 'DP ID is required';
-    else if (!/^\d+$/.test(dpId)) e.dpId = 'DP ID must be numeric';
-    if (!username.trim()) e.username = 'Username is required';
-    if (!password.trim()) e.password = 'Password is required';
-    if (!crn.trim()) e.crn = 'CRN Number is required';
-    if (!pin.trim()) e.pin = 'PIN is required';
-    else if (pin.length !== 4) e.pin = 'PIN must be exactly 4 digits';
-    if (!bankName.trim()) e.bankName = 'Bank name is required';
-    if (!bankId.trim()) e.bankId = 'Bank ID is required';
+
+    if (!nickname.trim()) {
+      e.nickname = 'Nickname is required';
+    } else if (nickname.trim().length < 3) {
+      e.nickname = 'Nickname must be at least 3 characters';
+    } else if (nickname.trim().length > 50) {
+      e.nickname = 'Nickname must be 50 characters or less';
+    }
+
+    if (!selectedDP) {
+      e.dpId = 'Please select a DP';
+    }
+
+    if (!username.trim()) {
+      e.username = 'Username is required';
+    }
+
+    if (!password.trim()) {
+      e.password = 'Password is required';
+    }
+
+    if (!crn.trim()) {
+      e.crn = 'CRN Number is required';
+    } else if (!/^\d{8}$/.test(crn.trim())) {
+      e.crn = 'CRN must be exactly 8 digits';
+    }
+
+    if (!pin.trim()) {
+      e.pin = 'PIN is required';
+    } else if (!/^\d{4}$/.test(pin.trim())) {
+      e.pin = 'PIN must be exactly 4 digits';
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
+  const handleTestLogin = async () => {
+    if (!selectedDP || !username.trim() || !password.trim()) {
+      Alert.alert(
+        'Missing Fields',
+        'Please fill DP ID, Username, and Password before testing.',
+      );
+      return;
+    }
+
+    setIsTesting(true);
+    setTestResult(null);
+
+    try {
+      await meroshareApi.login(
+        String(selectedDP.id),
+        username.trim(),
+        password.trim(),
+      );
+      setTestResult('success');
+      Alert.alert('Success', 'Login credentials are valid!');
+    } catch (err) {
+      setTestResult('error');
+      const message =
+        err instanceof Error ? err.message : 'Login failed';
+      Alert.alert('Login Failed', message);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!validate()) return;
+
+    // Check for duplicate accounts
+    const existingAccounts = useAccountStore.getState().accounts;
+    const duplicate = existingAccounts.find(
+      (a) =>
+        a.dpId === String(selectedDP!.id) &&
+        a.username.toLowerCase() === username.trim().toLowerCase(),
+    );
+    if (duplicate) {
+      Alert.alert(
+        'Duplicate Account',
+        `An account with this DP and username already exists ("${duplicate.nickname}").`,
+      );
+      return;
+    }
+
     setIsSaving(true);
     try {
       await addAccount({
         nickname: nickname.trim(),
-        dpId: dpId.trim(),
+        dpId: String(selectedDP!.id),
         username: username.trim(),
         password: password.trim(),
         crn: crn.trim(),
         pin: pin.trim(),
-        bankName: bankName.trim(),
-        bankId: bankId.trim(),
+        bankName: selectedDP!.name,
+        bankId: String(selectedDP!.id),
         isActive: true,
         lastUsed: null,
       });
-      router.back();
+      Alert.alert('Success', 'Account saved securely!', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
     } catch {
       Alert.alert('Error', 'Failed to save account. Please try again.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSelectDP = (dp: DPEntity) => {
+    setSelectedDP(dp);
+    setDpSearch('');
+    setDpDropdownOpen(false);
+    // Clear DP error if set
+    if (errors.dpId) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.dpId;
+        return next;
+      });
     }
   };
 
@@ -212,7 +318,12 @@ export default function AddAccountScreen() {
           gap="$4"
         >
           {/* Account Nickname */}
-          <FormField label="Account Nickname" required error={errors.nickname}>
+          <FormField
+            label="Account Nickname"
+            required
+            error={errors.nickname}
+            helper="Min 3, max 50 characters"
+          >
             <XStack
               alignItems="center"
               style={{
@@ -221,45 +332,203 @@ export default function AddAccountScreen() {
                 overflow: 'hidden',
               }}
             >
-              <YStack
-                paddingLeft={14}
-                paddingRight={10}
-                paddingVertical={14}
-              >
+              <YStack paddingLeft={14} paddingRight={10} paddingVertical={14}>
                 <User size={16} color={C.muted} />
               </YStack>
               <TextInput
-                style={{ flex: 1, color: C.white, fontSize: 15, paddingRight: 14, paddingVertical: 14, ...(Platform.OS === 'web' ? { outlineStyle: 'none' } as any : {}) }}
+                style={{
+                  flex: 1,
+                  color: C.white,
+                  fontSize: 15,
+                  paddingRight: 14,
+                  paddingVertical: 14,
+                  ...(Platform.OS === 'web'
+                    ? ({ outlineStyle: 'none' } as any)
+                    : {}),
+                }}
                 placeholder="e.g. My Laxmi Bank DP"
                 placeholderTextColor={C.muted}
                 value={nickname}
                 onChangeText={setNickname}
+                maxLength={50}
               />
             </XStack>
           </FormField>
 
-          {/* DP ID */}
-          <FormField label="DP ID" required error={errors.dpId}>
-            <XStack
-              alignItems="center"
-              style={{ ...inputBase, padding: 0, overflow: 'hidden' }}
+          {/* DP ID - Searchable Dropdown */}
+          <FormField
+            label="DP ID"
+            required
+            error={errors.dpId}
+            helper="Select your Depository Participant"
+          >
+            {/* Selected DP or trigger */}
+            <TouchableOpacity
+              onPress={() => setDpDropdownOpen(!dpDropdownOpen)}
+              activeOpacity={0.7}
             >
-              <YStack paddingLeft={14} paddingRight={10} paddingVertical={14}>
-                <Hash size={16} color={C.muted} />
+              <XStack
+                alignItems="center"
+                style={{
+                  ...inputBase,
+                  padding: 0,
+                  overflow: 'hidden',
+                  borderColor: dpDropdownOpen ? C.gold : C.border,
+                }}
+              >
+                <YStack paddingLeft={14} paddingRight={10} paddingVertical={14}>
+                  <Hash size={16} color={C.muted} />
+                </YStack>
+                <YStack flex={1} paddingVertical={14}>
+                  {selectedDP ? (
+                    <SizableText size="$3" color={C.white}>
+                      [{selectedDP.id}] - {selectedDP.name}
+                    </SizableText>
+                  ) : (
+                    <SizableText size="$3" color={C.muted}>
+                      Select a Depository Participant
+                    </SizableText>
+                  )}
+                </YStack>
+                <YStack paddingHorizontal={14}>
+                  {dpLoading ? (
+                    <ActivityIndicator size="small" color={C.gold} />
+                  ) : (
+                    <ChevronDown size={16} color={C.muted} />
+                  )}
+                </YStack>
+              </XStack>
+            </TouchableOpacity>
+
+            {/* Dropdown panel */}
+            {dpDropdownOpen && (
+              <YStack
+                backgroundColor={C.surface}
+                borderRadius={12}
+                borderWidth={1}
+                borderColor={C.gold + '40'}
+                marginTop="$1"
+                maxHeight={250}
+                overflow="hidden"
+              >
+                {/* Search input */}
+                <XStack
+                  alignItems="center"
+                  paddingHorizontal="$3"
+                  paddingVertical="$2"
+                  borderBottomWidth={1}
+                  borderBottomColor={C.border}
+                  gap="$2"
+                >
+                  <Search size={14} color={C.muted} />
+                  <TextInput
+                    style={{
+                      flex: 1,
+                      color: C.white,
+                      fontSize: 14,
+                      paddingVertical: Platform.OS === 'ios' ? 6 : 4,
+                      ...(Platform.OS === 'web'
+                        ? ({ outlineStyle: 'none' } as any)
+                        : {}),
+                    }}
+                    placeholder="Search by ID or name..."
+                    placeholderTextColor={C.muted}
+                    value={dpSearch}
+                    onChangeText={setDpSearch}
+                    autoFocus
+                  />
+                </XStack>
+
+                {/* DP list */}
+                {dpLoading ? (
+                  <YStack padding="$4" alignItems="center">
+                    <ActivityIndicator size="small" color={C.gold} />
+                    <SizableText
+                      size="$2"
+                      color={C.muted}
+                      marginTop="$2"
+                    >
+                      Loading DP list...
+                    </SizableText>
+                  </YStack>
+                ) : filteredDPList.length === 0 ? (
+                  <YStack padding="$4" alignItems="center">
+                    <SizableText size="$3" color={C.muted}>
+                      {dpList.length === 0
+                        ? 'Could not load DP list'
+                        : 'No matching DPs found'}
+                    </SizableText>
+                    {dpList.length === 0 && (
+                      <TouchableOpacity
+                        onPress={() => fetchDPList(true)}
+                        style={{ marginTop: 8 }}
+                        activeOpacity={0.7}
+                      >
+                        <SizableText
+                          size="$2"
+                          color={C.gold}
+                          fontWeight="700"
+                        >
+                          Retry
+                        </SizableText>
+                      </TouchableOpacity>
+                    )}
+                  </YStack>
+                ) : (
+                  <FlatList
+                    data={filteredDPList.slice(0, 50)}
+                    keyExtractor={(item) => String(item.id)}
+                    keyboardShouldPersistTaps="handled"
+                    style={{ maxHeight: 180 }}
+                    renderItem={({ item }) => {
+                      const isSelected = selectedDP?.id === item.id;
+                      return (
+                        <TouchableOpacity
+                          onPress={() => handleSelectDP(item)}
+                          activeOpacity={0.7}
+                          style={{
+                            paddingHorizontal: 14,
+                            paddingVertical: 10,
+                            backgroundColor: isSelected
+                              ? C.gold + '15'
+                              : 'transparent',
+                            borderBottomWidth: 1,
+                            borderBottomColor: C.border + '60',
+                          }}
+                        >
+                          <XStack
+                            alignItems="center"
+                            justifyContent="space-between"
+                          >
+                            <YStack flex={1}>
+                              <SizableText
+                                size="$3"
+                                color={isSelected ? C.gold : C.white}
+                                fontWeight={isSelected ? '700' : '500'}
+                                numberOfLines={1}
+                              >
+                                [{item.id}] - {item.name}
+                              </SizableText>
+                            </YStack>
+                            {isSelected && (
+                              <CheckCircle2 size={16} color={C.gold} />
+                            )}
+                          </XStack>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                )}
               </YStack>
-              <TextInput
-                style={{ flex: 1, color: C.white, fontSize: 15, paddingRight: 14, paddingVertical: 14, ...(Platform.OS === 'web' ? { outlineStyle: 'none' } as any : {}) }}
-                placeholder="e.g. 13060001234"
-                placeholderTextColor={C.muted}
-                value={dpId}
-                onChangeText={setDpId}
-                keyboardType="number-pad"
-              />
-            </XStack>
+            )}
           </FormField>
 
           {/* Username */}
-          <FormField label="MeroShare Username" required error={errors.username}>
+          <FormField
+            label="MeroShare Username"
+            required
+            error={errors.username}
+          >
             <XStack
               alignItems="center"
               style={{ ...inputBase, padding: 0, overflow: 'hidden' }}
@@ -268,7 +537,16 @@ export default function AddAccountScreen() {
                 <User size={16} color={C.muted} />
               </YStack>
               <TextInput
-                style={{ flex: 1, color: C.white, fontSize: 15, paddingRight: 14, paddingVertical: 14, ...(Platform.OS === 'web' ? { outlineStyle: 'none' } as any : {}) }}
+                style={{
+                  flex: 1,
+                  color: C.white,
+                  fontSize: 15,
+                  paddingRight: 14,
+                  paddingVertical: 14,
+                  ...(Platform.OS === 'web'
+                    ? ({ outlineStyle: 'none' } as any)
+                    : {}),
+                }}
                 placeholder="Enter your username"
                 placeholderTextColor={C.muted}
                 value={username}
@@ -289,7 +567,15 @@ export default function AddAccountScreen() {
                 <Lock size={16} color={C.muted} />
               </YStack>
               <TextInput
-                style={{ flex: 1, color: C.white, fontSize: 15, paddingVertical: 14, ...(Platform.OS === 'web' ? { outlineStyle: 'none' } as any : {}) }}
+                style={{
+                  flex: 1,
+                  color: C.white,
+                  fontSize: 15,
+                  paddingVertical: 14,
+                  ...(Platform.OS === 'web'
+                    ? ({ outlineStyle: 'none' } as any)
+                    : {}),
+                }}
                 placeholder="Your MeroShare password"
                 placeholderTextColor={C.muted}
                 value={password}
@@ -313,7 +599,12 @@ export default function AddAccountScreen() {
           </FormField>
 
           {/* CRN */}
-          <FormField label="CRN Number" required error={errors.crn}>
+          <FormField
+            label="CRN Number"
+            required
+            error={errors.crn}
+            helper="8-digit Capital Registration Number"
+          >
             <XStack
               alignItems="center"
               style={{ ...inputBase, padding: 0, overflow: 'hidden' }}
@@ -322,18 +613,33 @@ export default function AddAccountScreen() {
                 <CreditCard size={16} color={C.muted} />
               </YStack>
               <TextInput
-                style={{ flex: 1, color: C.white, fontSize: 15, paddingRight: 14, paddingVertical: 14, ...(Platform.OS === 'web' ? { outlineStyle: 'none' } as any : {}) }}
+                style={{
+                  flex: 1,
+                  color: C.white,
+                  fontSize: 15,
+                  paddingRight: 14,
+                  paddingVertical: 14,
+                  ...(Platform.OS === 'web'
+                    ? ({ outlineStyle: 'none' } as any)
+                    : {}),
+                }}
                 placeholder="Capital Registration Number"
                 placeholderTextColor={C.muted}
                 value={crn}
                 onChangeText={setCrn}
-                autoCapitalize="characters"
+                keyboardType="number-pad"
+                maxLength={8}
               />
             </XStack>
           </FormField>
 
           {/* PIN */}
-          <FormField label="PIN" required error={errors.pin}>
+          <FormField
+            label="PIN"
+            required
+            error={errors.pin}
+            helper="4-digit transaction PIN"
+          >
             <XStack
               alignItems="center"
               style={{ ...inputBase, padding: 0, overflow: 'hidden' }}
@@ -342,62 +648,99 @@ export default function AddAccountScreen() {
                 <Shield size={16} color={C.muted} />
               </YStack>
               <TextInput
-                style={{ flex: 1, color: C.white, fontSize: 15, paddingRight: 14, paddingVertical: 14, letterSpacing: 8, ...(Platform.OS === 'web' ? { outlineStyle: 'none' } as any : {}) }}
-                placeholder="4-digit PIN"
+                style={{
+                  flex: 1,
+                  color: C.white,
+                  fontSize: 15,
+                  paddingRight: 14,
+                  paddingVertical: 14,
+                  letterSpacing: 8,
+                  ...(Platform.OS === 'web'
+                    ? ({ outlineStyle: 'none' } as any)
+                    : {}),
+                }}
+                placeholder="Transaction PIN"
                 placeholderTextColor={C.muted}
                 value={pin}
                 onChangeText={setPin}
                 keyboardType="number-pad"
                 maxLength={4}
-                secureTextEntry
+                secureTextEntry={!showPin}
               />
-            </XStack>
-          </FormField>
-
-          {/* Bank Name */}
-          <FormField label="Bank Name" required error={errors.bankName}>
-            <XStack
-              alignItems="center"
-              style={{ ...inputBase, padding: 0, overflow: 'hidden' }}
-            >
-              <YStack paddingLeft={14} paddingRight={10} paddingVertical={14}>
-                <Building2 size={16} color={C.muted} />
-              </YStack>
-              <TextInput
-                style={{ flex: 1, color: C.white, fontSize: 15, paddingRight: 14, paddingVertical: 14, ...(Platform.OS === 'web' ? { outlineStyle: 'none' } as any : {}) }}
-                placeholder="e.g. Laxmi Bank"
-                placeholderTextColor={C.muted}
-                value={bankName}
-                onChangeText={setBankName}
-              />
-            </XStack>
-          </FormField>
-
-          {/* Bank ID */}
-          <FormField
-            label="Bank ID"
-            required
-            error={errors.bankId}
-            helper="Find in MeroShare app settings"
-          >
-            <XStack
-              alignItems="center"
-              style={{ ...inputBase, padding: 0, overflow: 'hidden' }}
-            >
-              <YStack paddingLeft={14} paddingRight={10} paddingVertical={14}>
-                <Hash size={16} color={C.muted} />
-              </YStack>
-              <TextInput
-                style={{ flex: 1, color: C.white, fontSize: 15, paddingRight: 14, paddingVertical: 14, ...(Platform.OS === 'web' ? { outlineStyle: 'none' } as any : {}) }}
-                placeholder="Bank ID from MeroShare"
-                placeholderTextColor={C.muted}
-                value={bankId}
-                onChangeText={setBankId}
-                keyboardType="number-pad"
-              />
+              <TouchableOpacity
+                onPress={() => setShowPin(!showPin)}
+                style={{ paddingHorizontal: 14, paddingVertical: 14 }}
+                activeOpacity={0.7}
+              >
+                {showPin ? (
+                  <EyeOff size={16} color={C.muted} />
+                ) : (
+                  <Eye size={16} color={C.muted} />
+                )}
+              </TouchableOpacity>
             </XStack>
           </FormField>
         </Card>
+
+        {/* ════ Test Login Button ════ */}
+        <TouchableOpacity
+          onPress={handleTestLogin}
+          disabled={isTesting || !selectedDP || !username.trim() || !password.trim()}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            marginTop: 16,
+            backgroundColor:
+              testResult === 'success'
+                ? C.positive + '20'
+                : testResult === 'error'
+                  ? C.negative + '20'
+                  : C.surface,
+            borderRadius: 14,
+            paddingVertical: 14,
+            borderWidth: 1,
+            borderColor:
+              testResult === 'success'
+                ? C.positive + '60'
+                : testResult === 'error'
+                  ? C.negative + '60'
+                  : C.gold + '40',
+            opacity:
+              isTesting || !selectedDP || !username.trim() || !password.trim()
+                ? 0.5
+                : 1,
+          }}
+          activeOpacity={0.7}
+        >
+          {isTesting ? (
+            <ActivityIndicator size="small" color={C.gold} />
+          ) : testResult === 'success' ? (
+            <CheckCircle2 size={16} color={C.positive} />
+          ) : (
+            <Shield size={16} color={C.gold} />
+          )}
+          <SizableText
+            size="$3"
+            fontWeight="700"
+            color={
+              testResult === 'success'
+                ? C.positive
+                : testResult === 'error'
+                  ? C.negative
+                  : C.gold
+            }
+          >
+            {isTesting
+              ? 'Testing Login...'
+              : testResult === 'success'
+                ? 'Credentials Verified ✓'
+                : testResult === 'error'
+                  ? 'Test Failed — Try Again'
+                  : 'Test Login'}
+          </SizableText>
+        </TouchableOpacity>
 
         {/* ════ Save Button ════ */}
         <TouchableOpacity
@@ -408,7 +751,7 @@ export default function AddAccountScreen() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 8,
-            marginTop: 20,
+            marginTop: 12,
             backgroundColor: isSaving ? C.gold + '60' : C.gold,
             borderRadius: 14,
             paddingVertical: 16,
