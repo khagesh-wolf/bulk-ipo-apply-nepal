@@ -4,7 +4,6 @@
  */
 import { useState, useEffect } from 'react';
 import {
-  Alert,
   Platform,
   ScrollView,
   TextInput,
@@ -32,6 +31,8 @@ import {
   Save,
 } from '@blinkdotnew/mobile-ui';
 import { useAccountStore } from '@/store';
+import { useToast } from '@/components/Toast';
+import { useConfirmation } from '@/components/ConfirmationModal';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -105,6 +106,8 @@ function FormField({
 export default function EditAccountScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { accounts, updateAccount, deleteAccount } = useAccountStore();
+  const { showSuccess, showError } = useToast();
+  const { confirm } = useConfirmation();
 
   const account = accounts.find((a) => a.id === id);
 
@@ -194,30 +197,32 @@ export default function EditAccountScreen() {
         bankName: bankName.trim(),
         bankId: bankId.trim(),
       });
-      router.back();
+      showSuccess('Account updated successfully!');
+      setTimeout(() => router.back(), 1000);
     } catch {
-      Alert.alert('Error', 'Failed to update account. Please try again.');
+      showError('Failed to update account. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Account',
-      `Remove "${account.nickname}" from your accounts? This cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteAccount(account.id);
-            router.back();
-          },
-        },
-      ],
-    );
+  const handleDelete = async () => {
+    const confirmed = await confirm({
+      title: 'Delete Account',
+      message: `Remove "${account.nickname}" from your accounts? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (confirmed) {
+      try {
+        await deleteAccount(account.id);
+        showSuccess(`"${account.nickname}" removed`);
+        setTimeout(() => router.back(), 1000);
+      } catch {
+        showError('Failed to delete account.');
+      }
+    }
   };
 
   // Avatar initials

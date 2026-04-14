@@ -145,7 +145,7 @@ export class MeroShareApiClient {
     password: string,
   ): Promise<MeroShareLoginResponse> {
     const response = await this.http.post<LoginResponseBody>('/auth/', {
-      clientId: MEROSHARE_CLIENT_ID,
+      clientId: Number(dpId),
       username,
       password,
     });

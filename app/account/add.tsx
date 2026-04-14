@@ -36,6 +36,8 @@ import {
 import { useAccountStore, useDPStore } from '@/store';
 import { meroshareApi } from '@/lib/meroshareApi';
 import type { DPEntity } from '@/lib/dpService';
+import { useToast } from '@/components/Toast';
+import { useConfirmation } from '@/components/ConfirmationModal';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -114,6 +116,8 @@ function FormField({
 export default function AddAccountScreen() {
   const { addAccount } = useAccountStore();
   const { dpList, isLoading: dpLoading, fetchDPList, searchDP } = useDPStore();
+  const { showSuccess, showError, showWarning } = useToast();
+  const { confirm } = useConfirmation();
 
   // Form state
   const [nickname, setNickname] = useState('');
@@ -184,10 +188,7 @@ export default function AddAccountScreen() {
 
   const handleTestLogin = async () => {
     if (!selectedDP || !username.trim() || !password.trim()) {
-      Alert.alert(
-        'Missing Fields',
-        'Please fill DP ID, Username, and Password before testing.',
-      );
+      showWarning('Please fill DP ID, Username, and Password before testing.');
       return;
     }
 
@@ -201,12 +202,12 @@ export default function AddAccountScreen() {
         password.trim(),
       );
       setTestResult('success');
-      Alert.alert('Success', 'Login credentials are valid!');
+      showSuccess('Login credentials are valid! ✓');
     } catch (err) {
       setTestResult('error');
       const message =
         err instanceof Error ? err.message : 'Login failed';
-      Alert.alert('Login Failed', message);
+      showError(message);
     } finally {
       setIsTesting(false);
     }
@@ -223,12 +224,20 @@ export default function AddAccountScreen() {
         a.username.toLowerCase() === username.trim().toLowerCase(),
     );
     if (duplicate) {
-      Alert.alert(
-        'Duplicate Account',
+      showWarning(
         `An account with this DP and username already exists ("${duplicate.nickname}").`,
       );
       return;
     }
+
+    // Show confirmation modal before saving
+    const confirmed = await confirm({
+      title: 'Save Account?',
+      message: 'Your credentials will be encrypted and stored securely on this device.',
+      confirmText: 'Save',
+      cancelText: 'Cancel',
+    });
+    if (!confirmed) return;
 
     setIsSaving(true);
     try {
@@ -244,11 +253,13 @@ export default function AddAccountScreen() {
         isActive: true,
         lastUsed: null,
       });
-      Alert.alert('Success', 'Account saved securely!', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      showSuccess('Account added successfully! 🎉');
+      // Auto-navigate back after a short delay
+      setTimeout(() => {
+        router.back();
+      }, 1200);
     } catch {
-      Alert.alert('Error', 'Failed to save account. Please try again.');
+      showError('Failed to save account. Please try again.');
     } finally {
       setIsSaving(false);
     }
