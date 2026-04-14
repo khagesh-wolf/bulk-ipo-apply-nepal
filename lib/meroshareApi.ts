@@ -89,12 +89,13 @@ function mapRawIssue(raw: MeroShareApplicableIssueRaw): IPOIssue {
 function formatApiError(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const ae = error as AxiosError<{ message?: string; error?: string }>;
-    return (
+    const status = ae.response?.status;
+    const serverMsg =
       ae.response?.data?.message ??
       ae.response?.data?.error ??
       ae.message ??
-      'Network error'
-    );
+      'Network error';
+    return status ? `HTTP ${status}: ${serverMsg}` : serverMsg;
   }
   if (error instanceof Error) return error.message;
   return String(error);
@@ -114,6 +115,8 @@ export class MeroShareApiClient {
       withCredentials: false,
       headers: {
         'Content-Type': 'application/json',
+        // MeroShare API requires the literal string "null" as the
+        // Authorization value for unauthenticated (login) requests.
         Authorization: 'null',
       },
     });

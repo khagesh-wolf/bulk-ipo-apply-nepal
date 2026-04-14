@@ -35,7 +35,6 @@ import {
 } from '@blinkdotnew/mobile-ui';
 import { useAccountStore, useDPStore } from '@/store';
 import { meroshareApi } from '@/lib/meroshareApi';
-import axios from 'axios';
 import type { DPEntity } from '@/lib/dpService';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -205,21 +204,8 @@ export default function AddAccountScreen() {
       Alert.alert('Success', 'Login credentials are valid!');
     } catch (err) {
       setTestResult('error');
-
-      let message = 'Login failed';
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status;
-        const serverMsg =
-          err.response?.data?.message ??
-          err.response?.data?.error ??
-          err.message;
-        message = status
-          ? `HTTP ${status}: ${serverMsg}`
-          : `Network error: ${err.message}`;
-      } else if (err instanceof Error) {
-        message = err.message;
-      }
-
+      const message =
+        err instanceof Error ? err.message : 'Login failed';
       Alert.alert('Login Failed', message);
     } finally {
       setIsTesting(false);

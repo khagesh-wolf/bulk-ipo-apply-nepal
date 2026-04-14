@@ -59,6 +59,8 @@ export async function login(
         timeout: DEFAULT_TIMEOUT_MS,
         headers: {
           'Content-Type': 'application/json',
+          // MeroShare API requires the literal string "null" as the
+          // Authorization value for unauthenticated (login) requests.
           Authorization: 'null',
         },
       },
