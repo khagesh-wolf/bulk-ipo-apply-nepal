@@ -2,7 +2,7 @@
  * Settings Screen — Bulk IPO Apply Nepal
  * MeroShare accounts management + app preferences + about section
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Platform,
@@ -32,6 +32,7 @@ import {
   ChevronRight,
   AlertTriangle,
 } from '@blinkdotnew/mobile-ui';
+import { useShallow } from 'zustand/react/shallow';
 import { useAccountStore } from '@/store';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -280,8 +281,7 @@ function AboutRow({
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function SettingsScreen() {
-  const { accounts, loadAccounts, deleteAccount, toggleAccountActive } =
-    useAccountStore();
+  const accounts = useAccountStore((s) => s.accounts);
 
   // App settings toggles
   const [biometric, setBiometric] = useState(false);
@@ -290,8 +290,11 @@ export default function SettingsScreen() {
   const [ipoNotifs, setIpoNotifs] = useState(true);
   const [autoDelay, setAutoDelay] = useState(2);
 
+  const dataFetched = useRef(false);
   useEffect(() => {
-    loadAccounts();
+    if (dataFetched.current) return;
+    dataFetched.current = true;
+    useAccountStore.getState().loadAccounts();
   }, []);
 
   const handleDelete = (id: string, nickname: string) => {
@@ -303,7 +306,7 @@ export default function SettingsScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => deleteAccount(id),
+          onPress: () => useAccountStore.getState().deleteAccount(id),
         },
       ],
     );
@@ -416,7 +419,7 @@ export default function SettingsScreen() {
                 account={account}
                 onEdit={() => router.push(`/account/${account.id}`)}
                 onDelete={() => handleDelete(account.id, account.nickname)}
-                onToggle={() => toggleAccountActive(account.id)}
+                onToggle={() => useAccountStore.getState().toggleAccountActive(account.id)}
               />
             ))}
 

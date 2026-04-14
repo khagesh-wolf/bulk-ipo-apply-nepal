@@ -26,6 +26,7 @@ import {
   ChevronRight,
   Activity,
 } from '@blinkdotnew/mobile-ui';
+import { useShallow } from 'zustand/react/shallow';
 import { useMarketStore } from '@/store';
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
@@ -311,8 +312,15 @@ export default function MarketScreen() {
     topLosers,
     highestTurnover,
     isLoading,
-    fetchMarketData,
-  } = useMarketStore();
+  } = useMarketStore(
+    useShallow((s) => ({
+      nepseIndex: s.nepseIndex,
+      topGainers: s.topGainers,
+      topLosers: s.topLosers,
+      highestTurnover: s.highestTurnover,
+      isLoading: s.isLoading,
+    })),
+  );
 
   const [activeTab, setActiveTab]   = useState<TabKey>('gainers');
   const [searchQuery, setSearchQuery] = useState('');
@@ -323,9 +331,9 @@ export default function MarketScreen() {
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchMarketData();
+    await useMarketStore.getState().fetchMarketData();
     setRefreshing(false);
-  }, [fetchMarketData]);
+  }, []);
 
   // Build the list shown for active tab
   const moversData = (() => {
