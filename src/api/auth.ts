@@ -51,7 +51,7 @@ export async function login(
     const response = await axios.post(
       AUTH.LOGIN,
       {
-        clientId: CLIENT_ID,
+        clientId: Number(dpId),
         username,
         password,
       },

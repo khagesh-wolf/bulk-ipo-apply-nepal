@@ -489,8 +489,16 @@ function ActiveIssueCard({ issue, onBulkApply, onSingleApply }: IssueCardProps) 
             </SizableText>
             <XStack alignItems="center" gap="$2">
               <SizableText size="$2" color="#8B9AB1" fontWeight="700">{issue.symbol}</SizableText>
-              <SizableText size="$2" color="#4A5568">•</SizableText>
-              <SizableText size="$2" color="#8B9AB1">Close: {formatDate(issue.closeDate)}</SizableText>
+            </XStack>
+            <XStack gap="$3" marginTop="$1">
+              <YStack>
+                <SizableText size="$1" color="#8B9AB1">Opens</SizableText>
+                <SizableText size="$2" color="#FFFFFF" fontWeight="700">{formatDate(issue.openDate)}</SizableText>
+              </YStack>
+              <YStack>
+                <SizableText size="$1" color="#8B9AB1">Closes</SizableText>
+                <SizableText size="$2" color="#FFFFFF" fontWeight="700">{formatDate(issue.closeDate)}</SizableText>
+              </YStack>
             </XStack>
           </YStack>
           <XStack gap="$2" alignItems="center" flexWrap="wrap" justifyContent="flex-end">
@@ -632,8 +640,16 @@ function UpcomingIssueCard({ issue }: { issue: IPOIssue }) {
             </SizableText>
             <XStack alignItems="center" gap="$2">
               <SizableText size="$2" color="#8B9AB1" fontWeight="700">{issue.symbol}</SizableText>
-              <SizableText size="$2" color="#4A5568">•</SizableText>
-              <SizableText size="$2" color="#8B9AB1">Opens: {formatDate(issue.openDate)}</SizableText>
+            </XStack>
+            <XStack gap="$3" marginTop="$1">
+              <YStack>
+                <SizableText size="$1" color="#8B9AB1">Opens</SizableText>
+                <SizableText size="$2" color="#FFFFFF" fontWeight="700">{formatDate(issue.openDate)}</SizableText>
+              </YStack>
+              <YStack>
+                <SizableText size="$1" color="#8B9AB1">Closes</SizableText>
+                <SizableText size="$2" color="#FFFFFF" fontWeight="700">{formatDate(issue.closeDate)}</SizableText>
+              </YStack>
             </XStack>
           </YStack>
           <XStack gap="$2" flexWrap="wrap" justifyContent="flex-end">

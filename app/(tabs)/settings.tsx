@@ -4,7 +4,6 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
   Platform,
   ScrollView,
   Switch,
@@ -34,6 +33,8 @@ import {
 } from '@blinkdotnew/mobile-ui';
 import { useShallow } from 'zustand/react/shallow';
 import { useAccountStore } from '@/store';
+import { useToast } from '@/components/Toast';
+import { useConfirmation } from '@/components/ConfirmationModal';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -282,6 +283,8 @@ function AboutRow({
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function SettingsScreen() {
   const accounts = useAccountStore((s) => s.accounts);
+  const { showSuccess, showError } = useToast();
+  const { confirm } = useConfirmation();
 
   // App settings toggles
   const [biometric, setBiometric] = useState(false);
@@ -297,19 +300,22 @@ export default function SettingsScreen() {
     useAccountStore.getState().loadAccounts();
   }, []);
 
-  const handleDelete = (id: string, nickname: string) => {
-    Alert.alert(
-      'Delete Account',
-      `Remove "${nickname}" from your accounts? This cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => useAccountStore.getState().deleteAccount(id),
-        },
-      ],
-    );
+  const handleDelete = async (id: string, nickname: string) => {
+    const confirmed = await confirm({
+      title: 'Delete Account',
+      message: `Remove "${nickname}" from your accounts? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (confirmed) {
+      try {
+        await useAccountStore.getState().deleteAccount(id);
+        showSuccess(`"${nickname}" removed successfully`);
+      } catch {
+        showError('Failed to delete account. Please try again.');
+      }
+    }
   };
 
   return (
