@@ -2,8 +2,7 @@
  * Market Store (Zustand)
  *
  * Manages NEPSE index data, sub-indices, top gainers/losers, and
- * highest-turnover stocks. Backed by nepseApi.ts which uses
- * mock-data fallbacks for web / offline.
+ * highest-turnover stocks. Backed by nepseApi.ts.
  */
 
 import { create } from 'zustand';
@@ -11,11 +10,6 @@ import type { NEPSEIndex, StockData } from '@/types';
 import {
   getNEPSEIndex,
   getMarketMovers,
-  MOCK_NEPSE_INDEX,
-  MOCK_SUB_INDICES,
-  MOCK_TOP_GAINERS,
-  MOCK_TOP_LOSERS,
-  MOCK_HIGHEST_TURNOVER,
 } from '@/lib/nepseApi';
 
 // ---------------------------------------------------------------------------
@@ -50,12 +44,11 @@ interface MarketStore {
 // ---------------------------------------------------------------------------
 
 export const useMarketStore = create<MarketStore>((set) => ({
-  // Seed with mock data immediately so the UI renders without a loading state
-  nepseIndex: MOCK_NEPSE_INDEX,
-  subIndices: MOCK_SUB_INDICES,
-  topGainers: MOCK_TOP_GAINERS,
-  topLosers: MOCK_TOP_LOSERS,
-  highestTurnover: MOCK_HIGHEST_TURNOVER,
+  nepseIndex: null,
+  subIndices: [],
+  topGainers: [],
+  topLosers: [],
+  highestTurnover: [],
   isLoading: false,
   error: null,
   lastUpdated: null,
@@ -81,8 +74,6 @@ export const useMarketStore = create<MarketStore>((set) => ({
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to fetch market data';
-
-      // Keep existing (mock) data and just surface the error
       set({ isLoading: false, error: message });
     }
   },

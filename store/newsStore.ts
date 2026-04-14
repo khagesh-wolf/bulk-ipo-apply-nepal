@@ -6,7 +6,7 @@
 
 import { create } from 'zustand';
 import type { NewsArticle, NewsCategory, NewsSource } from '@/types';
-import { fetchNews, MOCK_NEWS, filterNewsByCategory } from '@/lib/newsApi';
+import { fetchNews, filterNewsByCategory } from '@/lib/newsApi';
 
 // ---------------------------------------------------------------------------
 // Store shape
@@ -41,7 +41,7 @@ interface NewsStore {
 // ---------------------------------------------------------------------------
 
 export const useNewsStore = create<NewsStore>((set) => ({
-  articles: MOCK_NEWS,
+  articles: [],
   isLoading: false,
   error: null,
   lastUpdated: null,

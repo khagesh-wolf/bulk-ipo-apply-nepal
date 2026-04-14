@@ -39,3 +39,8 @@ export {
   selectAlertsBySymbol,
   selectWatchlistSymbols,
 } from './watchlistStore';
+
+export {
+  useDPStore,
+  selectDPById,
+} from './dpStore';

@@ -3,9 +3,6 @@
  *
  * Manages active IPO issues, application records, and bulk-apply logic.
  * Uses the meroshareApi client to interact with CDSC MeroShare.
- *
- * Mock IPO data is used as the initial seed so the UI renders on web preview
- * and when the API is unreachable.
  */
 
 import { create } from 'zustand';
@@ -13,102 +10,6 @@ import type { IPOIssue, IPOApplication, BulkApplyResult } from '@/types';
 import { meroshareApi } from '@/lib/meroshareApi';
 import { useAccountStore } from './accountStore';
 import { generateId } from '@/lib/secureStore';
-
-// ---------------------------------------------------------------------------
-// Mock seed data — realistic Nepali companies
-// ---------------------------------------------------------------------------
-
-const TODAY = new Date();
-const fmt = (d: Date) => d.toISOString().split('T')[0];
-
-function daysFromNow(n: number): string {
-  const d = new Date(TODAY);
-  d.setDate(d.getDate() + n);
-  return fmt(d);
-}
-
-const MOCK_ISSUES: IPOIssue[] = [
-  {
-    id: 'mock-1',
-    companyName: 'Himalayan Distillery Limited',
-    symbol: 'HDL',
-    shareType: 'Ordinary',
-    openDate: fmt(TODAY),
-    closeDate: daysFromNow(7),
-    pricePerUnit: 100,
-    minUnit: 10,
-    maxUnit: 20,
-    totalUnits: 2_500_000,
-    isOpen: true,
-    statusLabel: 'Open',
-    subIssueId: '1001',
-    companyShareId: '5001',
-  },
-  {
-    id: 'mock-2',
-    companyName: 'Nepal Reinsurance Company Limited',
-    symbol: 'NRIC',
-    shareType: 'Ordinary',
-    openDate: fmt(TODAY),
-    closeDate: daysFromNow(10),
-    pricePerUnit: 100,
-    minUnit: 10,
-    maxUnit: 20,
-    totalUnits: 5_000_000,
-    isOpen: true,
-    statusLabel: 'Open',
-    subIssueId: '1002',
-    companyShareId: '5002',
-  },
-  {
-    id: 'mock-3',
-    companyName: 'Siddhartha Energy Limited',
-    symbol: 'SEL',
-    shareType: 'Ordinary',
-    openDate: fmt(TODAY),
-    closeDate: daysFromNow(14),
-    pricePerUnit: 100,
-    minUnit: 10,
-    maxUnit: 20,
-    totalUnits: 3_200_000,
-    isOpen: true,
-    statusLabel: 'Open',
-    subIssueId: '1003',
-    companyShareId: '5003',
-  },
-  {
-    id: 'mock-4',
-    companyName: 'Mahila Sahayatra Microfinance Bittiya Sanstha',
-    symbol: 'MSMBS',
-    shareType: 'Right',
-    openDate: daysFromNow(3),
-    closeDate: daysFromNow(17),
-    pricePerUnit: 100,
-    minUnit: 10,
-    maxUnit: 10,
-    totalUnits: 1_500_000,
-    isOpen: false,
-    statusLabel: 'Upcoming',
-    subIssueId: '1004',
-    companyShareId: '5004',
-  },
-  {
-    id: 'mock-5',
-    companyName: 'Jyoti Bikash Bank Limited',
-    symbol: 'JBBL',
-    shareType: 'FPO',
-    openDate: daysFromNow(5),
-    closeDate: daysFromNow(19),
-    pricePerUnit: 318,
-    minUnit: 10,
-    maxUnit: 50,
-    totalUnits: 4_000_000,
-    isOpen: false,
-    statusLabel: 'Upcoming',
-    subIssueId: '1005',
-    companyShareId: '5005',
-  },
-];
 
 // ---------------------------------------------------------------------------
 // Store shape
@@ -122,7 +23,7 @@ interface IPOStore {
   error: string | null;
   lastBulkResults: BulkApplyResult[];
 
-  /** Fetch live issues from MeroShare (falls back to mock on error). */
+  /** Fetch live issues from MeroShare. */
   fetchActiveIssues: () => Promise<void>;
 
   /**
@@ -163,7 +64,7 @@ function buildBoid(dpId: string, crn: string): string {
 // ---------------------------------------------------------------------------
 
 export const useIPOStore = create<IPOStore>((set, get) => ({
-  activeIssues: MOCK_ISSUES,
+  activeIssues: [],
   applications: [],
   isApplying: false,
   isLoadingIssues: false,
@@ -179,8 +80,10 @@ export const useIPOStore = create<IPOStore>((set, get) => ({
       const activeAccount = accounts.find((a) => a.isActive);
 
       if (!activeAccount) {
-        // No accounts configured — keep mock data
-        set({ isLoadingIssues: false });
+        set({
+          isLoadingIssues: false,
+          error: 'Add a MeroShare account to view IPO issues.',
+        });
         return;
       }
 
@@ -193,12 +96,13 @@ export const useIPOStore = create<IPOStore>((set, get) => ({
       const issues = await meroshareApi.getActiveIssues(token);
 
       set({
-        activeIssues: issues.length ? issues : MOCK_ISSUES,
+        activeIssues: issues,
         isLoadingIssues: false,
       });
-    } catch {
-      // Keep mock data on failure so the UI still renders
-      set({ isLoadingIssues: false });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to fetch IPO issues';
+      set({ isLoadingIssues: false, error: message });
     }
   },
 
