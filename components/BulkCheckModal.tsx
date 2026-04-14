@@ -22,17 +22,17 @@ import type { MeroShareAccount, BulkCheckResult } from '@/types';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg: '#0A0E1A',
-  card: '#0D1221',
-  surface: '#1A2744',
-  border: '#2D3B55',
-  gold: '#FFD700',
-  positive: '#22C55E',
-  negative: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
-  muted: '#8B9AB1',
-  white: '#FFFFFF',
+  bg: '#0f172a',
+  card: '#1e293b',
+  surface: '#334155',
+  border: '#475569',
+  gold: '#fbbf24',
+  positive: '#10b981',
+  negative: '#ef4444',
+  warning: '#f59e0b',
+  info: '#0ea5e9',
+  muted: '#94a3b8',
+  white: '#f1f5f9',
 };
 
 // ─── Status Icon ────────────────────────────────────────────────────────────

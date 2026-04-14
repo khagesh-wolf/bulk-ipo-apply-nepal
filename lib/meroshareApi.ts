@@ -162,7 +162,11 @@ export class MeroShareApiClient {
     const raw: unknown = response.data;
     let token = '';
     if (typeof raw === 'string' && raw.length > 0) {
-      token = raw.trim();
+      const candidate = raw.trim();
+      // Validate basic JWT format: three dot-separated base64url segments
+      if (/^[\w-]+\.[\w-]+\.[\w-]+$/.test(candidate)) {
+        token = candidate;
+      }
     } else if (raw && typeof raw === 'object') {
       const body = raw as Record<string, unknown>;
       token = String(body.token ?? body.accessToken ?? '').trim();

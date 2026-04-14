@@ -41,7 +41,7 @@ export default function IPODetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const activeIssues = useIPOStore((s) => s.activeIssues);
 
-  const issue = activeIssues.find((i: { id: string }) => i.id === id);
+  const issue = activeIssues.find((i) => i.id === id);
 
   if (!issue) {
     return (

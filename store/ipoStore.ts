@@ -251,11 +251,13 @@ export const useIPOStore = create<IPOStore>((set, get) => ({
     const updatedApps = applications.map((app) => {
       const checkResult = results.find((r) => r.accountId === app.accountId);
       if (checkResult && app.status === 'APPLIED') {
-        return {
-          ...app,
-          status: checkResult.status === 'allotted' ? 'ALLOTTED' as const : 'NOT_ALLOTTED' as const,
-          allottedUnits: checkResult.allottedUnits,
-        };
+        if (checkResult.status === 'allotted') {
+          return { ...app, status: 'ALLOTTED' as const, allottedUnits: checkResult.allottedUnits };
+        }
+        if (checkResult.status === 'not_allotted') {
+          return { ...app, status: 'NOT_ALLOTTED' as const, allottedUnits: 0 };
+        }
+        // For 'error' or 'pending', preserve APPLIED status — result is not yet definitive
       }
       return app;
     });
