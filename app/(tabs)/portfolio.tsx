@@ -238,7 +238,7 @@ export default function PortfolioScreen() {
                         borderLeftColor={account.isActive ? GOLD : MUTED}
                       >
                         <SizableText size="$2" fontWeight="800" color={account.isActive ? GOLD : MUTED}>
-                          {account.nickname.slice(0, 3).toUpperCase()}
+                          {(account.nickname || '').slice(0, 3).toUpperCase() || '—'}
                         </SizableText>
                       </XStack>
                       <YStack flex={1}>

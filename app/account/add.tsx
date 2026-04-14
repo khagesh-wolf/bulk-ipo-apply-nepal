@@ -64,6 +64,11 @@ const inputBase: any = {
   ...(Platform.OS === 'web' ? { outlineStyle: 'none' } : {}),
 };
 
+const webOutline: any =
+  Platform.OS === 'web' ? { outlineStyle: 'none' } : {};
+
+const MAX_DROPDOWN_ITEMS = 50;
+
 // ─── Form Field ───────────────────────────────────────────────────────────────
 function FormField({
   label,
@@ -342,9 +347,7 @@ export default function AddAccountScreen() {
                   fontSize: 15,
                   paddingRight: 14,
                   paddingVertical: 14,
-                  ...(Platform.OS === 'web'
-                    ? ({ outlineStyle: 'none' } as any)
-                    : {}),
+                  ...webOutline,
                 }}
                 placeholder="e.g. My Laxmi Bank DP"
                 placeholderTextColor={C.muted}
@@ -427,9 +430,7 @@ export default function AddAccountScreen() {
                       color: C.white,
                       fontSize: 14,
                       paddingVertical: Platform.OS === 'ios' ? 6 : 4,
-                      ...(Platform.OS === 'web'
-                        ? ({ outlineStyle: 'none' } as any)
-                        : {}),
+                      ...webOutline,
                     }}
                     placeholder="Search by ID or name..."
                     placeholderTextColor={C.muted}
@@ -476,7 +477,7 @@ export default function AddAccountScreen() {
                   </YStack>
                 ) : (
                   <FlatList
-                    data={filteredDPList.slice(0, 50)}
+                    data={filteredDPList.slice(0, MAX_DROPDOWN_ITEMS)}
                     keyExtractor={(item) => String(item.id)}
                     keyboardShouldPersistTaps="handled"
                     style={{ maxHeight: 180 }}
@@ -543,9 +544,7 @@ export default function AddAccountScreen() {
                   fontSize: 15,
                   paddingRight: 14,
                   paddingVertical: 14,
-                  ...(Platform.OS === 'web'
-                    ? ({ outlineStyle: 'none' } as any)
-                    : {}),
+                  ...webOutline,
                 }}
                 placeholder="Enter your username"
                 placeholderTextColor={C.muted}
@@ -572,9 +571,7 @@ export default function AddAccountScreen() {
                   color: C.white,
                   fontSize: 15,
                   paddingVertical: 14,
-                  ...(Platform.OS === 'web'
-                    ? ({ outlineStyle: 'none' } as any)
-                    : {}),
+                  ...webOutline,
                 }}
                 placeholder="Your MeroShare password"
                 placeholderTextColor={C.muted}
@@ -619,9 +616,7 @@ export default function AddAccountScreen() {
                   fontSize: 15,
                   paddingRight: 14,
                   paddingVertical: 14,
-                  ...(Platform.OS === 'web'
-                    ? ({ outlineStyle: 'none' } as any)
-                    : {}),
+                  ...webOutline,
                 }}
                 placeholder="Capital Registration Number"
                 placeholderTextColor={C.muted}
@@ -655,9 +650,7 @@ export default function AddAccountScreen() {
                   paddingRight: 14,
                   paddingVertical: 14,
                   letterSpacing: 8,
-                  ...(Platform.OS === 'web'
-                    ? ({ outlineStyle: 'none' } as any)
-                    : {}),
+                  ...webOutline,
                 }}
                 placeholder="Transaction PIN"
                 placeholderTextColor={C.muted}
