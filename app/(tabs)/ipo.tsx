@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Platform, Modal, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { Platform, Modal, TouchableOpacity, TextInput, ActivityIndicator, View, StyleSheet } from 'react-native';
 import {
   YStack,
   XStack,
@@ -520,19 +520,17 @@ function ActiveIssueCard({ issue, onBulkApply, onSingleApply }: IssueCardProps) 
 
         {/* Progress bar */}
         <YStack gap="$1">
-          <YStack
-            height={4}
-            backgroundColor="#334155"
-            borderRadius={2}
-            overflow="hidden"
-          >
-            <YStack
-              height={4}
-              borderRadius={2}
-              width={`${progressPercent}%` as any}
-              backgroundColor={progressPercent > 75 ? '#ef4444' : progressPercent > 50 ? '#f59e0b' : '#0ea5e9'}
+          <View style={styles.progressTrack}>
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: `${progressPercent}%`,
+                  backgroundColor: progressPercent > 75 ? '#ef4444' : progressPercent > 50 ? '#f59e0b' : '#0ea5e9',
+                },
+              ]}
             />
-          </YStack>
+          </View>
           <XStack alignItems="center" justifyContent="space-between">
             <XStack alignItems="center" gap="$2">
               <YStack
@@ -1095,3 +1093,16 @@ export default function IPOScreen() {
     </YStack>
   );
 }
+
+const styles = StyleSheet.create({
+  progressTrack: {
+    height: 4,
+    backgroundColor: '#334155',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: 4,
+    borderRadius: 2,
+  },
+});

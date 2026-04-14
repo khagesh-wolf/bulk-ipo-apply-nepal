@@ -235,7 +235,8 @@ export const useIPOStore = create<IPOStore>((set, get) => ({
           allottedUnits: result.allottedUnits,
           message: result.message,
         });
-      } catch {
+      } catch (err) {
+        console.error('[bulkCheckResults] allotment check failed for account', account.id, err);
         results.push({
           accountId: account.id,
           accountNickname: account.nickname,

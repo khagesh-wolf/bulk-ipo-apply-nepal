@@ -67,7 +67,9 @@ function mapRawIssue(raw: MeroShareApplicableIssueRaw): IPOIssue {
   let openDate = raw.issueOpenDate ?? raw.openDate;
   let closeDate = raw.issueCloseDate ?? raw.closeDate;
 
-  // Safety: ensure open date is before close date (API may return them swapped)
+  // Safety: ensure open date is before close date.
+  // MeroShare's API has occasionally returned the issueOpenDate/issueCloseDate fields
+  // in reversed order — this is a permanent defensive fix for that API quirk.
   if (openDate && closeDate && new Date(openDate).getTime() > new Date(closeDate).getTime()) {
     [openDate, closeDate] = [closeDate, openDate];
   }
@@ -163,7 +165,8 @@ export class MeroShareApiClient {
     let token = '';
     if (typeof raw === 'string' && raw.length > 0) {
       const candidate = raw.trim();
-      // Validate basic JWT format: three dot-separated base64url segments
+      // Format validation only — checks for three dot-separated base64url segments
+      // (header.payload.signature). This is NOT cryptographic validation.
       if (/^[\w-]+\.[\w-]+\.[\w-]+$/.test(candidate)) {
         token = candidate;
       }
