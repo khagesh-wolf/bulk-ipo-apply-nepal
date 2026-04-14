@@ -224,7 +224,9 @@ export default function AddAccountScreen() {
         a.username.toLowerCase() === username.trim().toLowerCase(),
     );
     if (duplicate) {
-      showWarning(`An account with this DP and username already exists ("${duplicate.nickname}").`);
+      showWarning(
+        `An account with this DP and username already exists ("${duplicate.nickname}").`,
+      );
       return;
     }
 
