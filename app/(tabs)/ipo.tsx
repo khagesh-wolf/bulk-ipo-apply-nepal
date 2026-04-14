@@ -25,6 +25,7 @@ import {
   ChevronRight,
   X,
   Zap,
+  Search,
 } from '@blinkdotnew/mobile-ui';
 import { useShallow } from 'zustand/react/shallow';
 import {
@@ -33,6 +34,7 @@ import {
   selectOpenIssues,
   selectUpcomingIssues,
 } from '@/store';
+import { BulkCheckModal } from '@/components/BulkCheckModal';
 import type { IPOIssue, IPOApplication, MeroShareAccount, BulkApplyResult } from '@/types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -743,6 +745,7 @@ export default function IPOScreen() {
     isLoadingIssues,
     applications,
     isApplying,
+    isCheckingResults,
     lastBulkResults,
     error: ipoError,
   } = useIPOStore(
@@ -750,6 +753,7 @@ export default function IPOScreen() {
       isLoadingIssues: s.isLoadingIssues,
       applications: s.applications,
       isApplying: s.isApplying,
+      isCheckingResults: s.isCheckingResults,
       lastBulkResults: s.lastBulkResults,
       error: s.error,
     })),
@@ -761,6 +765,7 @@ export default function IPOScreen() {
   const [activeTab, setActiveTab] = useState<'active' | 'upcoming'>('active');
   const [selectedIssue, setSelectedIssue] = useState<IPOIssue | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [checkModalVisible, setCheckModalVisible] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Use ref to ensure accounts are loaded only once on mount.
@@ -805,20 +810,44 @@ export default function IPOScreen() {
               <SizableText size="$2" color="#8B9AB1">Active &amp; Upcoming Issues</SizableText>
             </YStack>
 
-            <Button
-              size="$4"
-              circular
-              chromeless
-              pressStyle={{ opacity: 0.7 }}
-              onPress={handleRefresh}
-              disabled={isRefreshing}
-            >
-              <RefreshCw
-                size={20}
-                color={isRefreshing ? '#FFD700' : '#8B9AB1'}
-                style={isRefreshing ? { transform: [{ rotate: '45deg' }] } : undefined}
-              />
-            </Button>
+            <XStack gap="$2" alignItems="center">
+              {/* Check Allotment Button */}
+              <TouchableOpacity
+                onPress={() => setCheckModalVisible(true)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  backgroundColor: '#3B82F620',
+                  borderWidth: 1,
+                  borderColor: '#3B82F650',
+                  borderRadius: 10,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                }}
+                activeOpacity={0.7}
+              >
+                <Search size={14} color="#3B82F6" />
+                <SizableText size="$2" color="#3B82F6" fontWeight="700">
+                  Check Results
+                </SizableText>
+              </TouchableOpacity>
+
+              <Button
+                size="$4"
+                circular
+                chromeless
+                pressStyle={{ opacity: 0.7 }}
+                onPress={handleRefresh}
+                disabled={isRefreshing}
+              >
+                <RefreshCw
+                  size={20}
+                  color={isRefreshing ? '#FFD700' : '#8B9AB1'}
+                  style={isRefreshing ? { transform: [{ rotate: '45deg' }] } : undefined}
+                />
+              </Button>
+            </XStack>
           </XStack>
 
           {/* ── Pill Tab Bar ── */}
@@ -1037,6 +1066,15 @@ export default function IPOScreen() {
         onApply={useIPOStore.getState().applyBulk}
         isApplying={isApplying}
         lastResults={lastBulkResults}
+      />
+
+      {/* ── Bulk Check Modal ── */}
+      <BulkCheckModal
+        visible={checkModalVisible}
+        accounts={accounts}
+        onClose={() => setCheckModalVisible(false)}
+        onCheck={useIPOStore.getState().bulkCheckResults}
+        isChecking={isCheckingResults}
       />
     </YStack>
   );

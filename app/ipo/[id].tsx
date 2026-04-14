@@ -39,11 +39,9 @@ const topPad = Platform.OS === 'ios' ? 54 : Platform.OS === 'android' ? 34 : 24;
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function IPODetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { activeIssues, upcomingIssues } = useIPOStore();
+  const activeIssues = useIPOStore((s) => s.activeIssues);
 
-  const issue =
-    activeIssues.find((i) => i.id === id) ??
-    upcomingIssues.find((i) => i.id === id);
+  const issue = activeIssues.find((i: { id: string }) => i.id === id);
 
   if (!issue) {
     return (

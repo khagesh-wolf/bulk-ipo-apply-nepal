@@ -64,19 +64,27 @@ function mapStatusLabel(isOpen: boolean, closeDate: string): IssueStatus {
 }
 
 function mapRawIssue(raw: MeroShareApplicableIssueRaw): IPOIssue {
+  let openDate = raw.issueOpenDate ?? raw.openDate;
+  let closeDate = raw.issueCloseDate ?? raw.closeDate;
+
+  // Safety: ensure open date is before close date (API may return them swapped)
+  if (openDate && closeDate && new Date(openDate).getTime() > new Date(closeDate).getTime()) {
+    [openDate, closeDate] = [closeDate, openDate];
+  }
+
   return {
     id: String(raw.id),
     companyName: raw.companyName,
     symbol: raw.scrip,
     shareType: mapShareType(raw.shareTypeName ?? raw.shareGroupName ?? ''),
-    openDate: raw.issueOpenDate ?? raw.openDate,
-    closeDate: raw.issueCloseDate ?? raw.closeDate,
+    openDate,
+    closeDate,
     pricePerUnit: raw.sharePerUnit ?? 100,
     minUnit: raw.minUnit,
     maxUnit: raw.maxUnit,
     totalUnits: 0, // not returned in list endpoint
     isOpen: raw.isOpen,
-    statusLabel: mapStatusLabel(raw.isOpen, raw.issueCloseDate ?? raw.closeDate),
+    statusLabel: mapStatusLabel(raw.isOpen, closeDate),
     subIssueId: String(raw.subGroup),
     companyShareId: String(raw.companyShareId),
   };
@@ -151,7 +159,7 @@ export class MeroShareApiClient {
     });
 
     // MeroShare returns the JWT token directly in the response body.
-    const raw = response.data;
+    const raw: unknown = response.data;
     let token = '';
     if (typeof raw === 'string' && raw.length > 0) {
       token = raw.trim();

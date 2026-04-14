@@ -254,10 +254,14 @@ export default function AddAccountScreen() {
         lastUsed: null,
       });
       showSuccess('Account added successfully! 🎉');
-      // Auto-navigate back after a short delay
+      // Navigate back reliably after showing success toast
       setTimeout(() => {
-        router.back();
-      }, 1200);
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace('/(tabs)/settings');
+        }
+      }, 800);
     } catch {
       showError('Failed to save account. Please try again.');
     } finally {

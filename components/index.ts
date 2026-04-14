@@ -5,3 +5,4 @@
 export { ToastProvider, useToast } from './Toast';
 export { ConfirmationProvider, useConfirmation } from './ConfirmationModal';
 export { LoadingProvider, useLoading } from './LoadingModal';
+export { BulkCheckModal } from './BulkCheckModal';
