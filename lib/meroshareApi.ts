@@ -169,6 +169,8 @@ export class MeroShareApiClient {
       // (header.payload.signature). This is NOT cryptographic validation.
       if (/^[\w-]+\.[\w-]+\.[\w-]+$/.test(candidate)) {
         token = candidate;
+      } else if (__DEV__) {
+        console.warn('[MeroShareApi] Response body looks like a string but failed JWT format check — falling back to header/object extraction.');
       }
     } else if (raw && typeof raw === 'object') {
       const body = raw as Record<string, unknown>;

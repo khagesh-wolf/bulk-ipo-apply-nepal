@@ -19,6 +19,7 @@ import {
   Users,
 } from '@blinkdotnew/mobile-ui';
 import type { MeroShareAccount, BulkCheckResult } from '@/types';
+import { maskDpId } from '@/lib';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -261,7 +262,7 @@ export function BulkCheckModal({
                                   {acc.nickname}
                                 </SizableText>
                                 <SizableText size="$2" color={C.muted}>
-                                  DP: {'*'.repeat(6)}{acc.dpId?.slice(-4) ?? '****'}
+                                  DP: {maskDpId(acc.dpId)}
                                 </SizableText>
                               </YStack>
                             </TouchableOpacity>

@@ -30,6 +30,7 @@ import {
 } from '@blinkdotnew/mobile-ui';
 import { useShallow } from 'zustand/react/shallow';
 import { useMarketStore, useAccountStore, useIPOStore, selectTopNGainers, selectOpenIssues, selectUpcomingIssues } from '@/store';
+import { maskDpId } from '@/lib';
 
 // useNativeDriver is not supported on web
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
@@ -699,7 +700,7 @@ export default function DashboardScreen() {
                           {acc.nickname}
                         </SizableText>
                         <SizableText size="$2" color="#94a3b8">
-                          DP: {'*'.repeat(7)}{acc.dpId?.slice(-4) ?? '****'}
+                          DP: {maskDpId(acc.dpId)}
                         </SizableText>
                       </YStack>
                       <YStack

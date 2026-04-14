@@ -3,7 +3,7 @@
  * Active / Upcoming issues with bulk apply modal.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Platform, Modal, TouchableOpacity, TextInput, ActivityIndicator, View, StyleSheet } from 'react-native';
 import {
   YStack,
@@ -36,6 +36,7 @@ import {
 } from '@/store';
 import { BulkCheckModal } from '@/components/BulkCheckModal';
 import type { IPOIssue, IPOApplication, MeroShareAccount, BulkApplyResult } from '@/types';
+import { maskDpId } from '@/lib';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -338,7 +339,7 @@ function BulkApplyModal({
                                   {acc.nickname}
                                 </SizableText>
                                 <SizableText size="$2" color="#94a3b8">
-                                  DP: {'*'.repeat(6)}{acc.dpId?.slice(-4) ?? '****'}
+                                  DP: {maskDpId(acc.dpId)}
                                 </SizableText>
                               </YStack>
                             </TouchableOpacity>
@@ -471,11 +472,15 @@ interface IssueCardProps {
 function ActiveIssueCard({ issue, onBulkApply, onSingleApply }: IssueCardProps) {
   const days = daysUntil(issue.closeDate);
   const minInvestment = issue.minUnit * issue.pricePerUnit;
-  const totalDays = Math.max(1, Math.ceil(
-    (new Date(issue.closeDate).getTime() - new Date(issue.openDate).getTime()) / (1000 * 60 * 60 * 24)
-  ));
-  const elapsed = totalDays - days;
-  const progressPercent = Math.min(100, Math.max(0, Math.round((elapsed / totalDays) * 100)));
+  const { progressPercent } = useMemo(() => {
+    const total = Math.max(1, Math.ceil(
+      (new Date(issue.closeDate).getTime() - new Date(issue.openDate).getTime()) / (1000 * 60 * 60 * 24)
+    ));
+    const elapsed = total - daysUntil(issue.closeDate);
+    return {
+      progressPercent: Math.min(100, Math.max(0, Math.round((elapsed / total) * 100))),
+    };
+  }, [issue.openDate, issue.closeDate]);
 
   return (
     <Card
